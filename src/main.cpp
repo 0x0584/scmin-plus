@@ -6,29 +6,40 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/12 02:16:40 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/12 02:53:35 by archid-          ###   ########.fr       //
  //                                                                            //
 // ************************************************************************** //
 
-#include "sexpr.hpp"
-
+#include "repl.hpp"
 
 int main()
 {
+    vector<string> good = {
+        // numbers
+        "10", "   20", "   20     ", "20      ",
+        "+10", "   -20", "   +20     ", "+20      ",
+        "78.34", "78.34      ", "   +78.34",
+        "   78.34     ",
 
-    sexpr_t bar;
-    {
-        auto t = cons(str("bla"), cons(str("cool"), nil()));
-        auto s = cons(str("ss"), str("sd"));
-        auto foo = list(str("bla"), num(4), str("cool"), nil());
+        // symbols
+        "foo", "   bar", "foobar  ", "foo-bar", "   foo-bar", "foo-bar   ",
+        "-+10", "   -+20",
+        "fo#$o", "   +-bar", "-foo+bar  ", "foo-bar",
 
-        cout << t << endl;
-        cout << s << endl;
-        cout << foo << endl;
+        // strings
+        "\"this is a string\"",  "\"this + 11 is a strddd sing\"",
 
-        bar = list(t, s, foo, nil());
-    }
-    cout << bar << endl;
+        // conslists
+        "(op param1         param2)", "(op \"string arg\" 2)",
+        "(op (\"string arg\") 2)", "(op . po)", "   (op  op)"
+
+        // nil
+        "nil"
+    }, bad = {
+        "(gg 1 3", "one two)", ")()", "\"sssdsd"
+    };
+
+    for (auto e : good) cout << "[" << e << "] >> " << parse(e) << endl;
 
     cout << "exit!" << endl;
     return 0;

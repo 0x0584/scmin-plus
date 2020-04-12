@@ -6,33 +6,29 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/12 02:12:40 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/12 02:51:06 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include "sexpr.hpp"
 
 sexpr_t nil() {
-    cout << "making nil" << endl;
     return make_shared<sexpr>();
 }
 
 sexpr_t symb(const string& s) {
-    cout << "making symb " << s << endl;
     return make_shared<sexpr>(s);
 }
+
 sexpr_t str(const string& s) {
-    cout << "making str " << s << endl;
     return make_shared<sexpr>(s, false);
 }
 
 sexpr_t num(double n) {
-    cout << "making num " << n << endl;
     return make_shared<sexpr>(n);
 }
 
 sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr) {
-    cout << "making cons " << car << " " << cdr << endl;
     return make_shared<sexpr>(car, cdr);
 }
 
