@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/12 02:25:19 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/12 22:43:21 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -47,7 +47,7 @@ class sexpr
         sexpr_conslist(const sexpr_t& foo, const sexpr_t& bar)
             : car(foo), cdr(bar) {}
 
-        bool ispair() {return !islist();}
+        bool ispair() {return not islist();}
         bool islist() {
             auto walk = cdr;
             while (walk->iscons())
@@ -81,12 +81,13 @@ public:
     explicit sexpr(const string& s, bool symbol = true)
         : blob(new any(sexpr_text(s, symbol))) {}
     explicit sexpr(const sexpr_t& car, const sexpr_t& cdr)
-        : blob(new any(sexpr_conslist(car,cdr))) {}
+        : blob(new any(sexpr_conslist(car, cdr))) {}
 
     friend ostream& operator<<(ostream& os, sexpr_t s) {
-        if (s->isnil()) os << "nil";
+        if (s == nullptr) os << "(null)";
+        else if (s->isnil()) os << "nil";
         else if (s->isnum()) os << any_cast<sexpr_number>(*s->blob).n;
-        else if (s->issymb() || s->isstr())
+        else if (s->issymb() or s->isstr())
             os << any_cast<sexpr_text>(*s->blob).text();
         else os << "(" << any_cast<sexpr_conslist>(*s->blob) << ")";
         return os;

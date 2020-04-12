@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/12 02:53:35 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/13 00:18:17 by archid-          ###   ########.fr       //
  //                                                                            //
 // ************************************************************************** //
 
@@ -31,16 +31,23 @@ int main()
 
         // conslists
         "(op param1         param2)", "(op \"string arg\" 2)",
-        "(op (\"string arg\") 2)", "(op . po)", "   (op  op)"
-
+        "(op (\"string arg\") 2)", "(op . po)", "   (op  op)",
+        "(op\"this\"2)", "(1(2(3(4)5)6)7)"
         // nil
         "nil"
     }, bad = {
         "(gg 1 3", "one two)", ")()", "\"sssdsd"
     };
 
-    for (auto e : good) cout << "[" << e << "] >> " << parse(e) << endl;
-
-    cout << "exit!" << endl;
+    int i = 0;
+    int err = 0;
+    // string str = "(op (\"string arg\") 2)";
+    for (auto str : good) {
+        sexpr_t e;
+        cout << "#" << i++ << " [" << str << "] >> "
+             << (e = parse(str)) << endl;
+        if (e == nullptr) err++;
+    }
+    cout << "exit! " << err << "/" << i << endl;
     return 0;
 }
