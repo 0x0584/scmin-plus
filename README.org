@@ -1,17 +1,17 @@
-#+TITLE: Readme Scmin++, Scmin using C++
+#+TITLE: Scmin++, Scmin using C++
 #+AUTHOR: Anas Rchid
 
 * About
 
 #+begin_quote
-=[[https://github.com/0x0584/scmin][scmin]]= or minimal Scheme[fn:1] interpreter, is a basic programming environment for the /Scheme Programming Language/ that I had written way back in the summer of 2018. I was trying to learn & make something interesting since I was bored, so I thought that learning some functional programming might be helpful[fn:2]. And It turns out that building your own functional programming language interpreter is an elegant way to do so!
+[[https://github.com/0x0584/scmin][scmin]] or minimal [[https://www.schemers.org/Documents/Standards/R5RS/r5rs.pdf][Scheme interpreter]], is a basic programming environment for the /Scheme Programming Language/ that I had written way back in the summer of 2018. I was trying to learn & make something interesting since I was bored, so I thought that learning some functional programming might be helpful[fn:2]. And It turns out that building your own functional programming language interpreter is an elegant way to do so!
 #+end_quote
 
 Now, what's more fascinating, is that previously I had used C, which did many things well. But on the other hand, it's too primitive and I wasn't planing to make something that would require such a low level control, ie. doing many things manually equals more code to maintain. So, I have decided to rebuild the interpreter from scratch using C++ --- using a /modern/ language provides a whole lot to build something solid and robust, rather than re inventing the wheel.
 
 * is it Scheme or Lisp?
 
-Well, about similarities, they're both of the same programming paradigm, both belong are functional[fn:3] languages, yet they differ on an implementation[fn:4] level.
+Well, they are quite similar! They're both of the same programming paradigm, that is both belong are [[http://www-formal.stanford.edu/jmc/recursive.pdf][functional languages]]. Yet they differ on an [[http://stackoverflow.com/questions/5368090/ddg#5372482][implementation]] level.
 
 * TODOs [2/7]
 
@@ -25,13 +25,3 @@ Well, about similarities, they're both of the same programming paradigm, both be
 + [ ] add lambdas
 + [ ] add scopes
 + [ ] add GC
-
-* Footnotes
-
-[fn:1] https://www.schemers.org/Documents/Standards/R5RS/r5rs.pdf
-
-[fn:2] I'm an Emacs user, wha did you expect?
-
-[fn:4] http://stackoverflow.com/questions/5368090/ddg#5372482
-
-[fn:3] http://www-formal.stanford.edu/jmc/recursive.pdf
