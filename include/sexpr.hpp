@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/12 22:43:21 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/13 18:16:35 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -55,13 +55,13 @@ class sexpr
             return walk->isnil();
         }
 
-        friend ostream& operator<<(ostream& os, sexpr_conslist c) {
-            if (c.ispair()) {
-                os << c.car << " . " << c.cdr;
+        friend ostream& operator<<(ostream& os, sexpr_conslist *c) {
+            if (c->ispair()) {
+                os << c->car << " . " << c->cdr;
                 return os;
             }
-            os << c.car;
-            for (auto e = c.cdr; not e->isnil(); e = e->cdr())
+            os << c->car;
+            for (auto e = c->cdr; not e->isnil(); e = e->cdr())
                 os << " " << e->car();
             return os;
         }
@@ -77,11 +77,14 @@ public:
 
     sexpr() : blob(new any(sexpr_nil())) {}
 
+    ~sexpr() {
+        if (iscons()) delete any_cast<sexpr_conslist *>(*blob);
+    }
     explicit sexpr(double n) : blob(new any(sexpr_number(n))) {}
     explicit sexpr(const string& s, bool symbol = true)
         : blob(new any(sexpr_text(s, symbol))) {}
     explicit sexpr(const sexpr_t& car, const sexpr_t& cdr)
-        : blob(new any(sexpr_conslist(car, cdr))) {}
+        : blob(new any(new sexpr_conslist(car, cdr))) {}
 
     friend ostream& operator<<(ostream& os, sexpr_t s) {
         if (s == nullptr) os << "(null)";
@@ -89,14 +92,17 @@ public:
         else if (s->isnum()) os << any_cast<sexpr_number>(*s->blob).n;
         else if (s->issymb() or s->isstr())
             os << any_cast<sexpr_text>(*s->blob).text();
-        else os << "(" << any_cast<sexpr_conslist>(*s->blob) << ")";
+        else os << "(" << any_cast<sexpr_conslist *>(*s->blob) << ")";
         return os;
     }
 
     bool isnil(), iscons(), islist(), ispair();
     bool isnum(), isstr(), issymb();
-    sexpr_t car(), cdr(), eval() const;
+    bool setcar(const sexpr_t& e), setcdr(const sexpr_t& e);
 
+    sexpr_t car(), cdr();
+
+    sexpr_t eval() const;
 };
 
 #endif
