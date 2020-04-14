@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/13 18:16:35 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/14 00:38:55 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -97,12 +97,10 @@ public:
     }
 
     bool isnil(), iscons(), islist(), ispair();
-    bool isnum(), isstr(), issymb();
+    bool isatom(), isnum(), isstr(), issymb();
+
     bool setcar(const sexpr_t& e), setcdr(const sexpr_t& e);
-
-    sexpr_t car(), cdr();
-
-    sexpr_t eval() const;
+    sexpr_t car(), cdr(), eval() const;
 };
 
 #endif

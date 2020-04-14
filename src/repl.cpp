@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/13 18:44:14 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/14 00:49:12 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -45,7 +45,20 @@ sexpr_t parse_tokens(queue<token>& q) {
                 tmp = parse_tokens(q);
             else if (q.front().type == token::tok_quote)
                 tmp = parse_quote(q);
-            else {
+            else if (q.front().type == token::tok_pair) {
+                q.pop();
+                if (e == nullptr or q.front().type == token::tok_r_paren) {
+                    cout << "parsing error! pair is not valid" << endl;
+                    return nullptr;
+                }
+                tmp = q.front(); q.pop();
+                if (not tmp->isatom() or q.front().type != token::tok_r_paren) {
+                    cout << "parsing error! pair is not valid" << endl;
+                    return nullptr;
+                }
+                e = cons(e->car(), tmp);
+                break;
+            } else {
                 tmp = static_cast<sexpr_t>(q.front());
                 q.pop();
             }
@@ -64,8 +77,8 @@ sexpr_t parse_tokens(queue<token>& q) {
     } else if (q.front().type == token::tok_quote) {
         e = parse_quote(q);
     } else if (q.front().type == token::tok_pair) {
-        // FIXME: this cause parsing error in case
-        return nil();
+        cout << "parsing error! pair is not valid" << endl;
+        return nullptr;
     } else {
         e = q.front(), q.pop();
     }

@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/13 15:30:18 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/14 00:47:33 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -65,6 +65,10 @@ bool sexpr::islist() {
 bool sexpr::ispair() {
     return blob->type() == typeid(sexpr_conslist *)
         and any_cast<sexpr_conslist *>(*blob)->ispair();
+}
+
+bool sexpr::isatom() {
+    return isnum() or isstr() or issymb();
 }
 
 bool sexpr::isnum() {
