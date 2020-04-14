@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/14 00:47:33 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/15 00:48:16 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -26,6 +26,10 @@ sexpr_t str(const string& s) {
 
 sexpr_t num(double n) {
     return make_shared<sexpr>(n);
+}
+
+sexpr_t lambda(const sexpr_t& args, const sexpr_t& body) {
+    return make_shared<sexpr>(cons(args, body));
 }
 
 sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr) {
@@ -73,6 +77,10 @@ bool sexpr::isatom() {
 
 bool sexpr::isnum() {
     return blob->type() == typeid(sexpr_number);
+}
+
+bool sexpr::islambda() {
+    return blob->type() == typeid(sexpr_lambda);
 }
 
 bool sexpr::isstr() {

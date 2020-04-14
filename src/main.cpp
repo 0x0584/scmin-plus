@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/14 01:05:10 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/15 00:52:03 by archid-          ###   ########.fr       //
  //                                                                            //
 // ************************************************************************** //
 
@@ -38,6 +38,11 @@ int main()
         // nil
         "'()", "nil",
 
+        // lambdas
+        "(lambda () ())", "(lambda () ((cons '() '())))", "(lambda (z) (e))",
+        "(lambda (x y) (foo baz baz))", "(lambda () (4))",
+        "((lambda (x y) (+ x y)) 4 5)", "(define foo (lambda (x y) (+ x y)))",
+
     }, bad = {
         "(gg 1 3", "one two)", ")()", "\"sssdsd"
     };
@@ -45,7 +50,7 @@ int main()
     int i = 0;
     int err = 0;
 
-    // string str = "(op (\"string arg\") 2)";
+    // string str = "(lambda (z) (e))";
     for (auto str : good) {
         sexpr_t e;
         cout << "#" << i++ << " [" << str << "] >> "
@@ -53,8 +58,8 @@ int main()
         if (e == nullptr) err++;
     }
 
-    // cout << parse("(print '(1 2 \"str\"))") << endl;
+    // cout << parse(str) << endl;
     cout << "exit! " << err << "/" << i << endl;
-    if (err) return -1;
+    // if (err) return -1;
     return 0;
 }

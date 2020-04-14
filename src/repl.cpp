@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/14 00:49:12 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/15 00:50:35 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,7 +15,7 @@
 sexpr_t parse_quote(queue<token>& q) {
     q.pop();
     if (q.size() == 0 || q.front().type == token::tok_r_paren) {
-        cout << "parsing error: empty quote";
+        cerr << "parsing error: empty quote";
         return nullptr;
     }
     sexpr_t e = parse_tokens(q);
@@ -39,7 +39,7 @@ sexpr_t parse_tokens(queue<token>& q) {
         sexpr_t tail;
 
         while (q.front().type != token::tok_r_paren) {
-            sexpr_t tmp;
+            sexpr_t tmp = nullptr;
 
             if (q.front().type == token::tok_l_paren)
                 tmp = parse_tokens(q);
@@ -48,18 +48,41 @@ sexpr_t parse_tokens(queue<token>& q) {
             else if (q.front().type == token::tok_pair) {
                 q.pop();
                 if (e == nullptr or q.front().type == token::tok_r_paren) {
-                    cout << "parsing error! pair is not valid" << endl;
+                    cerr << "parsing error! pair is not valid" << endl;
                     return nullptr;
                 }
                 tmp = q.front(); q.pop();
                 if (not tmp->isatom() or q.front().type != token::tok_r_paren) {
-                    cout << "parsing error! pair is not valid" << endl;
+                    cerr << "parsing error! pair is not valid" << endl;
                     return nullptr;
                 }
                 e = cons(e->car(), tmp);
                 break;
+            } else if (q.front().type == token::tok_lambda) {
+                q.pop();
+                if (e != nullptr || q.front().type != token::tok_l_paren) {
+                    cerr << "lambda args is mal-formatted" << endl;
+                    return nullptr;
+                }
+                auto args = parse_tokens(q);
+                // cout << "args: " << args << endl;
+                if (q.front().type != token::tok_l_paren) {
+                    cerr << "lambda body is mal-formatted" << endl;
+                    return nullptr;
+                }
+                auto body = parse_tokens(q);
+                // cout << "body: " << body << endl;
+                if (q.front().type != token::tok_r_paren) {
+                    cerr << "lambda is mal-formatted" << endl;
+                    return nullptr;
+                }
+                // cout << " ,,, " << args << " ,,, "<< body << endl;
+                e = lambda(args, body);
+                break;
             } else {
                 tmp = static_cast<sexpr_t>(q.front());
+                // cout << "here!!!" << endl;
+                // cout << tmp << endl;
                 q.pop();
             }
 
@@ -72,12 +95,13 @@ sexpr_t parse_tokens(queue<token>& q) {
                 tail->setcdr(cons(tmp, nil()));
                 tail = tail->cdr();
             }
+            // cout << ".... " << e << endl;
         }
         q.pop();
     } else if (q.front().type == token::tok_quote) {
         e = parse_quote(q);
     } else if (q.front().type == token::tok_pair) {
-        cout << "parsing error! pair is not valid" << endl;
+        cerr << "parsing error! pair is not valid" << endl;
         return nullptr;
     } else {
         e = q.front(), q.pop();

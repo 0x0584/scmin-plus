@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:00:33 by archid-           #+#    #+#             //
-//   Updated: 2020/04/13 15:41:03 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/15 00:55:57 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -25,7 +25,7 @@ struct token
     enum tok_type {
         tok_l_paren, tok_r_paren,
         tok_str, tok_num_or_symb,
-        tok_quote, tok_pair,
+        tok_quote, tok_pair, tok_lambda
     } type;
 
     bool next_paren(string& e), next_string(string& e),
@@ -39,6 +39,7 @@ struct token
             bool redix = false;
             bool flag = true;
 
+            if (s == "+" || s == "-") return symb(s);
             for (auto i = 0u; i < s.length(); i++) {
                 if (s[i] == '+' or s[i] == '-') {
                     if (i == 0) continue;
@@ -66,6 +67,7 @@ struct token
         else if (e == tok_str) os << "tok_str";
         else if (e == tok_quote) os << "tok_quote";
         else if (e == tok_pair) os << "tok_pair";
+        else if (e == tok_lambda) os << "tok_lambda";
         else os << "tok_num_or_symb";
         return os;
     }

@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/13 18:38:42 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/15 00:53:01 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -59,11 +59,12 @@ bool token::next_special(string& e) {
 }
 
 bool token::next_text(string& e) {
-    int j = 0;
     string delim = "() \"";
-    type = tok_num_or_symb;
+    int j = 0;
+
     for (; e[j] and delim.find(e[j]) == string::npos; j++)
         s += e[j];
+    type = (s == "lambda" ? tok_lambda : tok_num_or_symb);
     e.erase(0, j);
     return true;
 }
@@ -82,11 +83,14 @@ queue<token> token::tokenize(string& s) {
 
     // read tokens
     paren = {};
-    while (next_token(s, tok) and not tok.err)
+    while (next_token(s, tok) and not tok.err) {
+        // cout << tok << endl;
         tokens.push(tok), tok = {};
+
+    }
     // TODO: implement more sophisticated error management
     if (tok.err or paren.size()) {
-        cout << "there was error while lexing" << endl;
+        cerr << "there was error while lexing" << endl;
         return {};
     }
     return tokens;
