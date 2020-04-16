@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 23:53:00 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/17 00:55:04 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -175,6 +175,11 @@ bool sexpr::bind(const sexpr_t& rexpr, const sexpr_t& lexpr, bonds_t local) {
 void sexpr::init_global_scope() {
     sexpr::global["add"] = native(sexpr::native_add);
     sexpr::global["+"] = native(sexpr::native_add);
+    sexpr::global["cons"] = native(sexpr::native_cons);
+    sexpr::global["cdr"] = native(sexpr::native_cdr);
+    sexpr::global["car"] = native(sexpr::native_car);
+    sexpr::global["quote"] = native(sexpr::native_quote);
+    sexpr::global["print"] = native(sexpr::native_print);
 }
 
 sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent) {
@@ -199,14 +204,12 @@ sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent) {
 }
 
 sexpr_t eval(const sexpr_t& expr, const bonds_t& parent) {
-    sexpr_t res;
-    sexpr_t args;
     sexpr_t op;
 
     if (not expr->islist())
         return sexpr::context(expr, parent);
     op = eval(expr->car(), parent);
-    if (not op)
+    if (not op or not op->islambda())
         return nullptr;
-    return op->eval(eval_args(expr->cdr(), parent), parent);
+    return op->eval(expr->cdr(), parent);
 }

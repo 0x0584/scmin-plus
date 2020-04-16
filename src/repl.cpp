@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 23:52:28 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/17 00:15:29 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -20,7 +20,7 @@ sexpr_t parse_quote(queue<token>& q) {
     }
     sexpr_t e = parse_tokens(q);
     if (not e or e->isnil()) return e;
-    return cons(symb("quote"), e);
+    return cons(symb("quote"), cons(e, nil()));
 }
 
 sexpr_t parse_tokens(queue<token>& q) {

@@ -6,7 +6,7 @@
 #    By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/04/09 23:37:54 by archid-           #+#    #+#              #
-#    Updated: 2020/04/14 00:34:08 by archid-          ###   ########.fr        #
+#    Updated: 2020/04/17 01:03:08 by archid-          ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -41,7 +41,9 @@ check: all
 	@echo
 	@ls -lR
 	@echo
-	./$(NAME)
+	cat -n scheme/basic.scm
+	@echo
+	./$(NAME) < scheme/basic.scm
 
 distcheck:
 	@uname -a
@@ -53,7 +55,7 @@ valg: all
 #	@echo
 #	@cppcheck -v --std=c++17 .
 	@echo
-	@valgrind --leak-check=full --show-leak-kinds=all --show-reachable=yes ./$(NAME)
+	@valgrind --leak-check=full --show-leak-kinds=all --show-reachable=yes ./$(NAME) < scheme/basic.scm
 
 
 .PHONY: all re clean

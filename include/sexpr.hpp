@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 23:51:51 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/17 00:48:33 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -40,6 +40,7 @@ sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr);
 sexpr_t lambda(const sexpr_t& args, const sexpr_t& body);
 sexpr_t native(native_lambda fn);
 sexpr_t eval(const sexpr_t& expr, const bonds_t& parent);
+sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent);
 sexpr_t list(const sexpr_t& car...);
 
 class sexpr
@@ -124,7 +125,7 @@ class sexpr
         }
 
         friend ostream& operator<<(ostream& os, sexpr_lambda b) {
-            os << "[args: " << b.args << ", body: " << b.body << "]" << endl;
+            os << "[args: " << b.args << ", body: " << b.body << "]";
             return os;
         }
     };
@@ -174,11 +175,17 @@ public:
     bool setcar(const sexpr_t& e), setcdr(const sexpr_t& e);
 
     sexpr_t eval(const sexpr_t& args, const bonds_t& scope) {
+        sexpr_t evaled;
+
         if (not islambda()) {
             cerr << "operator is not lambda" << endl;
             return nullptr;
         }
-        return any_cast<sexpr_lambda>(*blob).eval(args, scope);
+        auto lamb = any_cast<sexpr_lambda>(*blob);
+        if (lamb.native == native_quote || lamb.native == native_print)
+            return lamb.native(args, scope);
+        evaled = eval_args(args, scope);
+        return lamb.eval(evaled, scope);
     }
 
     static void init_global_scope();
@@ -188,6 +195,16 @@ public:
                      bonds_t local = global);
 
     static sexpr_t native_add(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_sub(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_mul(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_div(const sexpr_t& args, const bonds_t& bonds);
+
+    static sexpr_t native_print(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_quote(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_car(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_cdr(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_cons(const sexpr_t& args, const bonds_t& bonds);
+
 };
 
 #endif
