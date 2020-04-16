@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/15 00:50:35 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 22:49:22 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -19,15 +19,12 @@ sexpr_t parse_quote(queue<token>& q) {
         return nullptr;
     }
     sexpr_t e = parse_tokens(q);
-    if (e == nullptr)
-        return nullptr;
-    else if (e->isnil())
-        return e;
+    if (not e or e->isnil()) return e;
     return cons(symb("quote"), e);
 }
 
 sexpr_t parse_tokens(queue<token>& q) {
-    sexpr_t e = nullptr;
+    sexpr_t e;
     token tok;
 
     if (q.front().type == token::tok_l_paren) {
@@ -39,7 +36,7 @@ sexpr_t parse_tokens(queue<token>& q) {
         sexpr_t tail;
 
         while (q.front().type != token::tok_r_paren) {
-            sexpr_t tmp = nullptr;
+            sexpr_t tmp;
 
             if (q.front().type == token::tok_l_paren)
                 tmp = parse_tokens(q);
@@ -47,7 +44,7 @@ sexpr_t parse_tokens(queue<token>& q) {
                 tmp = parse_quote(q);
             else if (q.front().type == token::tok_pair) {
                 q.pop();
-                if (e == nullptr or q.front().type == token::tok_r_paren) {
+                if (not e or q.front().type == token::tok_r_paren) {
                     cerr << "parsing error! pair is not valid" << endl;
                     return nullptr;
                 }
@@ -60,7 +57,7 @@ sexpr_t parse_tokens(queue<token>& q) {
                 break;
             } else if (q.front().type == token::tok_lambda) {
                 q.pop();
-                if (e != nullptr || q.front().type != token::tok_l_paren) {
+                if (e or q.front().type != token::tok_l_paren) {
                     cerr << "lambda args is mal-formatted" << endl;
                     return nullptr;
                 }
@@ -86,10 +83,9 @@ sexpr_t parse_tokens(queue<token>& q) {
                 q.pop();
             }
 
-            if (tmp == nullptr)
+            if (not tmp)
                 return nullptr;
-
-            if (e == nullptr)
+            else if (not e)
                 tail = e = cons(tmp, nil());
             else {
                 tail->setcdr(cons(tmp, nil()));
@@ -118,8 +114,17 @@ sexpr_t parse(string s) {
 
 void repl() {
     string s;
+    sexpr_t e;
+    size_t loop = 0;
+
+    cout << "This software comes with ABSOLUTLY NO WARRANTY." << endl;
+    cout << "scmin++ is a basic scheme interpreter, GPLv2\n" << endl;
+
+    sexpr::init_global_scope();
     while (true) {
+        cout << "("<< ++loop<< ")> ";getline(cin, s);
         if (s.length() == 0) break;
-        else parse(s)->eval();
+        else if (not (e = parse(s))) continue;
+        cout << eval(e, sexpr::global) << endl;
     }
 }

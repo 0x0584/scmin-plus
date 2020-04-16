@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/15 00:52:03 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 22:46:35 by archid-          ###   ########.fr       //
  //                                                                            //
 // ************************************************************************** //
 
@@ -47,19 +47,20 @@ int main()
         "(gg 1 3", "one two)", ")()", "\"sssdsd"
     };
 
-    int i = 0;
-    int err = 0;
+    // int i = 0;
+    // int err = 0;
 
-    // string str = "(lambda (z) (e))";
-    for (auto str : good) {
-        sexpr_t e;
-        cout << "#" << i++ << " [" << str << "] >> "
-             << (e = parse(str)) << endl;
-        if (e == nullptr) err++;
-    }
+    // // string str = "(lambda (z) (e))";
+    // for (auto str : good) {
+    //     sexpr_t e;
+    //     cout << "#" << i++ << " [" << str << "] >> "
+    //          << (e = parse(str)) << endl;
+    //     if (e == nullptr) err++;
+    // }
 
-    // cout << parse(str) << endl;
-    cout << "exit! " << err << "/" << i << endl;
+    // // cout << parse(str) << endl;
+    // cout << "exit! " << err << "/" << i << endl;
+    repl();
     // if (err) return -1;
     return 0;
 }
