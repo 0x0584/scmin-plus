@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 22:49:22 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 23:52:28 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -62,18 +62,15 @@ sexpr_t parse_tokens(queue<token>& q) {
                     return nullptr;
                 }
                 auto args = parse_tokens(q);
-                // cout << "args: " << args << endl;
                 if (q.front().type != token::tok_l_paren) {
                     cerr << "lambda body is mal-formatted" << endl;
                     return nullptr;
                 }
                 auto body = parse_tokens(q);
-                // cout << "body: " << body << endl;
                 if (q.front().type != token::tok_r_paren) {
                     cerr << "lambda is mal-formatted" << endl;
                     return nullptr;
                 }
-                // cout << " ,,, " << args << " ,,, "<< body << endl;
                 e = lambda(args, body);
                 break;
             } else {
@@ -122,9 +119,13 @@ void repl() {
 
     sexpr::init_global_scope();
     while (true) {
-        cout << "("<< ++loop<< ")> ";getline(cin, s);
-        if (s.length() == 0) break;
+        cout << "("<< ++loop<< ")> ";
+        getline(cin, s);
+        if (s.length() == 0) {
+            cout << "Bye!" << endl;
+            break;
+        }
         else if (not (e = parse(s))) continue;
-        cout << eval(e, sexpr::global) << endl;
+        cout << "=> "<< eval(e, sexpr::global) << endl;
     }
 }

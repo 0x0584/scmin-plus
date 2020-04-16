@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/15 00:53:01 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 23:41:25 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -81,13 +81,9 @@ queue<token> token::tokenize(string& s) {
     queue<token> tokens;
     token tok;
 
-    // read tokens
     paren = {};
-    while (next_token(s, tok) and not tok.err) {
-        // cout << tok << endl;
+    while (next_token(s, tok) and not tok.err)
         tokens.push(tok), tok = {};
-
-    }
     // TODO: implement more sophisticated error management
     if (tok.err or paren.size()) {
         cerr << "there was error while lexing" << endl;

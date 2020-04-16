@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 22:43:05 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 23:51:51 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -29,7 +29,7 @@ using namespace std;
 
 typedef shared_ptr<struct sexpr> sexpr_t;
 typedef weak_ptr<struct sexpr> gc_sexpr_t;
-typedef unordered_map<sexpr_t, sexpr_t> bonds_t;
+typedef unordered_map<string, sexpr_t> bonds_t;
 typedef sexpr_t (*native_lambda)(const sexpr_t&, const bonds_t&);
 
 sexpr_t nil();
@@ -39,7 +39,7 @@ sexpr_t num(double n);
 sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr);
 sexpr_t lambda(const sexpr_t& args, const sexpr_t& body);
 sexpr_t native(native_lambda fn);
-sexpr_t eval(const sexpr_t& expr, bonds_t& parent);
+sexpr_t eval(const sexpr_t& expr, const bonds_t& parent);
 sexpr_t list(const sexpr_t& car...);
 
 class sexpr
@@ -109,7 +109,8 @@ class sexpr
 
             local = parent;
             while (not u->isnil()) {
-                local[u->car()] = v->car();
+                // FIXME: only symbols are allowed
+                local[any_cast<sexpr_text>(*u->car()->blob).text()] = v->car();
                 u = u->cdr(); v = v->cdr();
             }
             return true;
@@ -181,7 +182,7 @@ public:
     }
 
     static void init_global_scope();
-    static sexpr_t context(const sexpr_t& expr, bonds_t& local);
+    static sexpr_t context(const sexpr_t& expr, const bonds_t& local);
     static void unbind(const sexpr_t& expr, bonds_t& local = global);
     static bool bind(const sexpr_t& rexpr, const sexpr_t& lexpr,
                      bonds_t local = global);

@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 22:44:01 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/16 23:53:00 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -133,13 +133,19 @@ size_t sexpr::length() {
     return sz;
 }
 
-sexpr_t sexpr::context(const sexpr_t& expr, bonds_t& local) {
+sexpr_t sexpr::context(const sexpr_t& expr, const bonds_t& local) {
     if (not expr) {
-        cerr << "scope err: not context for null" << endl;
+        cerr << "scope err: no context for null" << endl;
         return nullptr;
     }
-    if (local.find(expr) != end(local)) return local[expr];
-    else if (global.find(expr) != end(global)) return global[expr];
+    if (not expr->issymb()) return expr;
+    string sy = any_cast<sexpr_text>(*expr->blob).text();
+    auto it = local.find(sy);
+    if (it != end(local))
+        return it->second;
+    it = global.find(sy);
+    if (it != end(global))
+        return it->second;
     else return expr;
 }
 
@@ -148,8 +154,9 @@ void sexpr::unbind(const sexpr_t& expr, bonds_t& local) {
         cerr << "scope err: unbinding null" << endl;
         return;
     }
-    if (local.find(expr) != end(local)) local.erase(expr);
-    else if (global.find(expr) != end(global)) global.erase(expr);
+    string sy = any_cast<sexpr_text>(*expr->blob).text();
+    if (local.find(sy) != end(local)) local.erase(sy);
+    else if (global.find(sy) != end(global)) global.erase(sy);
 }
 
 bool sexpr::bind(const sexpr_t& rexpr, const sexpr_t& lexpr, bonds_t local) {
@@ -161,16 +168,16 @@ bool sexpr::bind(const sexpr_t& rexpr, const sexpr_t& lexpr, bonds_t local) {
         cerr << "scope err: only symbols are bind-able" << endl;
         return false;
     }
-    local[rexpr] = lexpr;
+    local[any_cast<sexpr_text>(*rexpr->blob).text()] = lexpr;
     return true;
 }
 
 void sexpr::init_global_scope() {
-    sexpr::global[symb("add")] = native(sexpr::native_add);
-    sexpr::global[symb("+")] = native(sexpr::native_add);
+    sexpr::global["add"] = native(sexpr::native_add);
+    sexpr::global["+"] = native(sexpr::native_add);
 }
 
-sexpr_t eval_args(const sexpr_t& args, bonds_t& parent) {
+sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent) {
     sexpr_t walk;
     sexpr_t tail;
     sexpr_t evaled;
@@ -191,7 +198,7 @@ sexpr_t eval_args(const sexpr_t& args, bonds_t& parent) {
     return evaled;
 }
 
-sexpr_t eval(const sexpr_t& expr, bonds_t& parent) {
+sexpr_t eval(const sexpr_t& expr, const bonds_t& parent) {
     sexpr_t res;
     sexpr_t args;
     sexpr_t op;
