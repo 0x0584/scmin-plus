@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:05:20 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 22:37:46 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -66,4 +66,12 @@ void sexpr::init_global() {
     sexpr::global["car"] = native(sexpr::native_car);
     sexpr::global["quote"] = native(sexpr::native_quote);
     sexpr::global["print"] = native(sexpr::native_print);
+
+    sexpr::global["pair?"] = native(sexpr::native_ispair);
+    sexpr::global["list?"] = native(sexpr::native_islist);
+    sexpr::global["symbol?"] = native(sexpr::native_issymb);
+    sexpr::global["string?"] = native(sexpr::native_isstr);
+    sexpr::global["number?"] = native(sexpr::native_isnum);
+    sexpr::global["lambda?"] = native(sexpr::native_islambda);
+    sexpr::global["nil?"] = native(sexpr::native_isnil);
 }

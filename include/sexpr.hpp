@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:14:03 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 22:38:56 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -126,7 +126,8 @@ public:
         : blob(new any(sexpr_lambda(fn))) {}
 
     friend ostream& operator<<(ostream& os, sexpr_t expr) {
-        if (not expr) os << "(null)";
+        if (not expr) os << "(null)"; // this is for debug,
+                                      // should be empty string
         else if (expr->isnil()) os << "nil";
         else if (expr->isnum()) os << any_cast<sexpr_number>(*expr->blob).n;
         else if (expr->iscons()) os << any_cast<sexpr_conslist *>(*expr->blob);
@@ -161,6 +162,14 @@ public:
     static sexpr_t native_car(const sexpr_t& args);
     static sexpr_t native_cdr(const sexpr_t& args);
     static sexpr_t native_cons(const sexpr_t& args);
+
+    static sexpr_t native_ispair(const sexpr_t& args);
+    static sexpr_t native_islist(const sexpr_t& args);
+    static sexpr_t native_isnum(const sexpr_t& args);
+    static sexpr_t native_isnil(const sexpr_t& args);
+    static sexpr_t native_isstr(const sexpr_t& args);
+    static sexpr_t native_issymb(const sexpr_t& args);
+    static sexpr_t native_islambda(const sexpr_t& args);
 
 };
 

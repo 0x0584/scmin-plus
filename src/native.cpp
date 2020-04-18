@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:01:15 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 22:39:57 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -125,4 +125,60 @@ sexpr_t sexpr::native_quote(const sexpr_t& args) {
 
 sexpr_t sexpr::native_print(const sexpr_t& args) {
     return args;
+}
+
+sexpr_t sexpr::native_ispair(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->ispair() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_islist(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->islist() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_isnum(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->isnum() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_isnil(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->isnil() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_isstr(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->isstr() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_issymb(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->issymb() ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_islambda(const sexpr_t& args) {
+    if (args->length() != 1) {
+        cerr << "Err: expect one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->islambda() ? symb("t") : nil();
 }
