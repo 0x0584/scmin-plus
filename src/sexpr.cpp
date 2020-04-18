@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:05:18 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:10:59 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -133,7 +133,7 @@ size_t sexpr::length() {
     return sz;
 }
 
-sexpr_t eval_args(const sexpr_t& args, const env_t& parent) {
+sexpr_t eval_args(const sexpr_t& args, env_t& parent) {
     sexpr_t walk;
     sexpr_t tail;
     sexpr_t evaled;
@@ -154,7 +154,7 @@ sexpr_t eval_args(const sexpr_t& args, const env_t& parent) {
     return evaled;
 }
 
-sexpr_t sexpr::eval(const sexpr_t& args, const env_t& bindings) {
+sexpr_t sexpr::eval(const sexpr_t& args, env_t& bindings) {
     sexpr_t evaled;
 
     if (not islambda()) {
@@ -162,13 +162,13 @@ sexpr_t sexpr::eval(const sexpr_t& args, const env_t& bindings) {
         return nullptr;
     }
     auto lamb = any_cast<sexpr_lambda>(*blob);
-    if (lamb.native == native_quote || lamb.native == native_print)
-        return lamb.native(args);
+    if (lamb.native == native_quote)
+        return lamb.native(args, bindings);
     evaled = eval_args(args, bindings);
     return lamb.eval(evaled, bindings);
 }
 
-sexpr_t eval(const sexpr_t& expr, const env_t& parent) {
+sexpr_t eval(const sexpr_t& expr, env_t& parent) {
     sexpr_t op;
 
     if (not expr->islist())

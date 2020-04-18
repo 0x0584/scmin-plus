@@ -6,14 +6,13 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:37:46 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:08:10 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include "sexpr.hpp"
 
-
-sexpr_t sexpr::context(const sexpr_t& expr, const env_t& local) {
+sexpr_t sexpr::context(const sexpr_t& expr, env_t& local) {
     if (not expr) {
         cerr << "scope err: no context for null" << endl;
         return nullptr;
@@ -74,4 +73,7 @@ void sexpr::init_global() {
     sexpr::global["number?"] = native(sexpr::native_isnum);
     sexpr::global["lambda?"] = native(sexpr::native_islambda);
     sexpr::global["nil?"] = native(sexpr::native_isnil);
+
+    sexpr::global["set!"] = native(sexpr::native_set);
+    sexpr::global["unset!"] = native(sexpr::native_unset);
 }

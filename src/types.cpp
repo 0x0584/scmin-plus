@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:09:16 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:39:47 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:08:46 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -29,7 +29,7 @@ bool sexpr::sexpr_conslist::ispair() {
 }
 
 
-bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, const env_t& parent) {
+bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
     auto u = this->args, v = args;
 
     if (u->length() != v->length()) {
@@ -47,8 +47,8 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, const env_t& parent) {
     return true;
 }
 
-sexpr_t sexpr::sexpr_lambda::eval(const sexpr_t& args, const env_t& parent) {
-    if (native) return native(args);
+sexpr_t sexpr::sexpr_lambda::eval(const sexpr_t& args, env_t& parent) {
+    if (native) return native(args, parent);
     if (not bindargs(args, parent))
         return nullptr;
     return ::eval(body, local);
