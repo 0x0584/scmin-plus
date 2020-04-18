@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/17 00:55:04 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 22:05:18 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -133,56 +133,7 @@ size_t sexpr::length() {
     return sz;
 }
 
-sexpr_t sexpr::context(const sexpr_t& expr, const bonds_t& local) {
-    if (not expr) {
-        cerr << "scope err: no context for null" << endl;
-        return nullptr;
-    }
-    if (not expr->issymb()) return expr;
-    string sy = any_cast<sexpr_text>(*expr->blob).text();
-    auto it = local.find(sy);
-    if (it != end(local))
-        return it->second;
-    it = global.find(sy);
-    if (it != end(global))
-        return it->second;
-    else return expr;
-}
-
-void sexpr::unbind(const sexpr_t& expr, bonds_t& local) {
-    if (not expr) {
-        cerr << "scope err: unbinding null" << endl;
-        return;
-    }
-    string sy = any_cast<sexpr_text>(*expr->blob).text();
-    if (local.find(sy) != end(local)) local.erase(sy);
-    else if (global.find(sy) != end(global)) global.erase(sy);
-}
-
-bool sexpr::bind(const sexpr_t& rexpr, const sexpr_t& lexpr, bonds_t local) {
-    if (not rexpr or not lexpr) {
-        cerr << "scope err: cannot bind null!" << endl;
-        return false;
-    }
-    if (not rexpr->issymb()) {
-        cerr << "scope err: only symbols are bind-able" << endl;
-        return false;
-    }
-    local[any_cast<sexpr_text>(*rexpr->blob).text()] = lexpr;
-    return true;
-}
-
-void sexpr::init_global_scope() {
-    sexpr::global["add"] = native(sexpr::native_add);
-    sexpr::global["+"] = native(sexpr::native_add);
-    sexpr::global["cons"] = native(sexpr::native_cons);
-    sexpr::global["cdr"] = native(sexpr::native_cdr);
-    sexpr::global["car"] = native(sexpr::native_car);
-    sexpr::global["quote"] = native(sexpr::native_quote);
-    sexpr::global["print"] = native(sexpr::native_print);
-}
-
-sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent) {
+sexpr_t eval_args(const sexpr_t& args, const env_t& parent) {
     sexpr_t walk;
     sexpr_t tail;
     sexpr_t evaled;
@@ -203,7 +154,21 @@ sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent) {
     return evaled;
 }
 
-sexpr_t eval(const sexpr_t& expr, const bonds_t& parent) {
+sexpr_t sexpr::eval(const sexpr_t& args, const env_t& bindings) {
+    sexpr_t evaled;
+
+    if (not islambda()) {
+        cerr << "operator is not lambda" << endl;
+        return nullptr;
+    }
+    auto lamb = any_cast<sexpr_lambda>(*blob);
+    if (lamb.native == native_quote || lamb.native == native_print)
+        return lamb.native(args);
+    evaled = eval_args(args, bindings);
+    return lamb.eval(evaled, bindings);
+}
+
+sexpr_t eval(const sexpr_t& expr, const env_t& parent) {
     sexpr_t op;
 
     if (not expr->islist())

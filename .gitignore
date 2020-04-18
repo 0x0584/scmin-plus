@@ -379,3 +379,6 @@ tags
 .vim
 
 # End of https://www.gitignore.io/api/vim,tex,linux,cmake,emacs
+/TAGS
+/.obj/
+/scmin++

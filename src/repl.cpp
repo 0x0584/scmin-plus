@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/17 00:15:29 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 21:54:15 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -117,15 +117,16 @@ void repl() {
     cout << "This software comes with ABSOLUTLY NO WARRANTY." << endl;
     cout << "scmin++ is a basic scheme interpreter, GPLv2\n" << endl;
 
-    sexpr::init_global_scope();
+    sexpr::init_global();
     while (true) {
-        cout << "("<< ++loop<< ")> ";
+        cout << "(" << ++loop << ")> ";
         getline(cin, s);
         if (s.length() == 0) {
             cout << "Bye!" << endl;
             break;
         }
-        else if (not (e = parse(s))) continue;
+        else if (not (e = parse(s)))
+            continue;
         cout << "=> "<< eval(e, sexpr::global) << endl;
     }
 }

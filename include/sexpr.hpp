@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/17 00:48:33 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 22:14:03 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -29,8 +29,8 @@ using namespace std;
 
 typedef shared_ptr<struct sexpr> sexpr_t;
 typedef weak_ptr<struct sexpr> gc_sexpr_t;
-typedef unordered_map<string, sexpr_t> bonds_t;
-typedef sexpr_t (*native_lambda)(const sexpr_t&, const bonds_t&);
+typedef unordered_map<string, sexpr_t> env_t;
+typedef sexpr_t (*native_lambda)(const sexpr_t&);
 
 sexpr_t nil();
 sexpr_t symb(const string& s);
@@ -39,28 +39,25 @@ sexpr_t num(double n);
 sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr);
 sexpr_t lambda(const sexpr_t& args, const sexpr_t& body);
 sexpr_t native(native_lambda fn);
-sexpr_t eval(const sexpr_t& expr, const bonds_t& parent);
-sexpr_t eval_args(const sexpr_t& args, const bonds_t& parent);
+sexpr_t eval(const sexpr_t& expr, const env_t& parent);
+sexpr_t eval_args(const sexpr_t& args, const env_t& parent);
 sexpr_t list(const sexpr_t& car...);
 
 class sexpr
 {
     struct sexpr_nil {};
+    struct sexpr_number
+    {
+        double n;
+        explicit sexpr_number(double d) : n(d) {}
+    };
     struct sexpr_text
     {
         string s;
         bool sy;
         explicit sexpr_text(const string& foo, bool issymb)
             : s(foo), sy(issymb) {}
-        string text() {
-            if (sy) return s;
-            else return "\"" + s + "\"";
-        }
-    };
-    struct sexpr_number
-    {
-        double n;
-        explicit sexpr_number(double d) : n(d) {}
+        string text();
     };
     struct sexpr_conslist
     {
@@ -69,13 +66,7 @@ class sexpr
         explicit sexpr_conslist(const sexpr_t& foo, const sexpr_t& bar)
             : car(foo), cdr(bar) {}
 
-        bool ispair() {return not islist();}
-        bool islist() {
-            auto walk = cdr;
-            while (walk->iscons())
-                walk = walk->cdr();
-            return walk->isnil();
-        }
+        bool ispair(), islist();
 
         friend ostream& operator<<(ostream& os, sexpr_conslist *c) {
             if (c->ispair()) {
@@ -92,37 +83,15 @@ class sexpr
     struct sexpr_lambda
     {
         sexpr_t args, body;
-        bonds_t local;
+        env_t local;
         native_lambda native;
 
         explicit sexpr_lambda(native_lambda fn) : native(fn) {}
         explicit sexpr_lambda(const sexpr_t& foo)
             : args(foo->car()), body(foo->cdr()), native(nullptr) {}
 
-        bool bindargs(const sexpr_t& args, const bonds_t& parent) {
-            auto u = this->args, v = args;
-
-            if (u->length() != v->length()) {
-                cerr << "argument count mismatched, expected "
-                     << u->length() << "got " << v->length();
-                return false;
-            }
-
-            local = parent;
-            while (not u->isnil()) {
-                // FIXME: only symbols are allowed
-                local[any_cast<sexpr_text>(*u->car()->blob).text()] = v->car();
-                u = u->cdr(); v = v->cdr();
-            }
-            return true;
-        }
-
-        sexpr_t eval(const sexpr_t& args, const bonds_t& parent) {
-            if (native) return native(args, parent);
-            if (not bindargs(args, parent))
-                return nullptr;
-            return ::eval(body, local);
-        }
+        bool bindargs(const sexpr_t& args, const env_t& parent);
+        sexpr_t eval(const sexpr_t& args, const env_t& parent);
 
         friend ostream& operator<<(ostream& os, sexpr_lambda b) {
             os << "[args: " << b.args << ", body: " << b.body << "]";
@@ -138,7 +107,7 @@ class sexpr
 
 public:
 
-    inline static bonds_t global;
+    inline static env_t global;
 
     sexpr() : blob(new any(sexpr_nil())) {}
     ~sexpr() {
@@ -174,36 +143,24 @@ public:
     sexpr_t car(), cdr();
     bool setcar(const sexpr_t& e), setcdr(const sexpr_t& e);
 
-    sexpr_t eval(const sexpr_t& args, const bonds_t& scope) {
-        sexpr_t evaled;
+    sexpr_t eval(const sexpr_t& args, const env_t& bindings);
 
-        if (not islambda()) {
-            cerr << "operator is not lambda" << endl;
-            return nullptr;
-        }
-        auto lamb = any_cast<sexpr_lambda>(*blob);
-        if (lamb.native == native_quote || lamb.native == native_print)
-            return lamb.native(args, scope);
-        evaled = eval_args(args, scope);
-        return lamb.eval(evaled, scope);
-    }
-
-    static void init_global_scope();
-    static sexpr_t context(const sexpr_t& expr, const bonds_t& local);
-    static void unbind(const sexpr_t& expr, bonds_t& local = global);
+    static void init_global();
+    static sexpr_t context(const sexpr_t& expr, const env_t& local);
+    static void unbind(const sexpr_t& expr, env_t& local = global);
     static bool bind(const sexpr_t& rexpr, const sexpr_t& lexpr,
-                     bonds_t local = global);
+                     env_t& local = global);
 
-    static sexpr_t native_add(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_sub(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_mul(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_div(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_add(const sexpr_t& args);
+    static sexpr_t native_sub(const sexpr_t& args);
+    static sexpr_t native_mul(const sexpr_t& args);
+    static sexpr_t native_div(const sexpr_t& args);
 
-    static sexpr_t native_print(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_quote(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_car(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_cdr(const sexpr_t& args, const bonds_t& bonds);
-    static sexpr_t native_cons(const sexpr_t& args, const bonds_t& bonds);
+    static sexpr_t native_print(const sexpr_t& args);
+    static sexpr_t native_quote(const sexpr_t& args);
+    static sexpr_t native_car(const sexpr_t& args);
+    static sexpr_t native_cdr(const sexpr_t& args);
+    static sexpr_t native_cons(const sexpr_t& args);
 
 };
 
