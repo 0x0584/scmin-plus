@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 23:07:20 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:29:35 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -225,4 +225,73 @@ sexpr_t sexpr::native_unset(const sexpr_t& args, env_t& bindings) {
     }
     bindings.erase(any_cast<sexpr_text>(*args->car()->blob).text());
     return symb("t");
+}
+
+#define cmp_helper(u, v, cmp) (any_cast<sexpr_number>(*u->blob).n \
+                               cmp any_cast<sexpr_number>(*v->blob).n)
+
+bool valid_numeric_args(sexpr_t args) {
+    if (args->length() != 2) {
+        cerr << "Err: expected two arguments!" << endl;
+        return false;
+    }
+    if (not (args->car()->isnum() and args->cdr()->car()->isnum())) {
+        cerr << "Err: arguments should both be numbers!" << endl;
+        return false;
+    }
+    return true;
+}
+
+sexpr_t sexpr::native_n_eq(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, !=) ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_eq(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, ==) ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_gt(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, >) ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_gt_eq(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, >=) ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_lt(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, <) ? symb("t") : nil();
+}
+
+sexpr_t sexpr::native_lt_eq(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t u, v;
+    if (not valid_numeric_args(args))
+        return nullptr;
+    u = args->car(), v = args->cdr()->car();
+    return cmp_helper(u, v, <=) ? symb("t") : nil();
 }

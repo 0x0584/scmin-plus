@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 23:08:10 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:33:12 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -74,6 +74,21 @@ void sexpr::init_global() {
     sexpr::global["lambda?"] = native(sexpr::native_islambda);
     sexpr::global["nil?"] = native(sexpr::native_isnil);
 
+    sexpr::global["gt?"] = native(sexpr::native_gt);
+    sexpr::global["ge?"] = native(sexpr::native_gt_eq);
+    sexpr::global["le?"] = native(sexpr::native_lt_eq);
+    sexpr::global["lt?"] = native(sexpr::native_lt);
+    sexpr::global["eq?"] = native(sexpr::native_eq);
+    sexpr::global["ne?"] = native(sexpr::native_n_eq);
+
+    sexpr::global[">?"] = native(sexpr::native_gt);
+    sexpr::global[">=?"] = native(sexpr::native_gt_eq);
+    sexpr::global["<=?"] = native(sexpr::native_lt_eq);
+    sexpr::global["<?"] = native(sexpr::native_lt);
+    sexpr::global["==?"] = native(sexpr::native_eq);
+    sexpr::global["!=?"] = native(sexpr::native_n_eq);
+
     sexpr::global["set!"] = native(sexpr::native_set);
     sexpr::global["unset!"] = native(sexpr::native_unset);
+
 }

@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 22:58:48 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/18 23:21:02 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -172,6 +172,13 @@ public:
     static sexpr_t native_isstr(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_issymb(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_islambda(const sexpr_t& args, env_t& bindings);
+
+    static sexpr_t native_n_eq(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_eq(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_gt(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_gt_eq(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_lt(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_lt_eq(const sexpr_t& args, env_t& bindings);
 };
 
 #endif
