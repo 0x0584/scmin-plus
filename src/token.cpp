@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 23:41:25 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 21:50:04 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -20,7 +20,7 @@ bool token::next_paren(string& e) {
     s = c;
     type = c == '(' ? tok_l_paren : tok_r_paren;
     if (c == ')') {
-        if (paren.top() != '(')
+        if (paren.size() == 0 or paren.top() != '(')
             return err = true;
         paren.pop();
         return true;

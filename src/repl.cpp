@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 21:54:15 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 19:59:59 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -53,7 +53,7 @@ sexpr_t parse_tokens(queue<token>& q) {
                     cerr << "parsing error! pair is not valid" << endl;
                     return nullptr;
                 }
-                e = cons(e->car(), tmp);
+                tail->setcar(cons(tail->car(), tmp));
                 break;
             } else if (q.front().type == token::tok_lambda) {
                 q.pop();
@@ -88,7 +88,6 @@ sexpr_t parse_tokens(queue<token>& q) {
                 tail->setcdr(cons(tmp, nil()));
                 tail = tail->cdr();
             }
-            // cout << ".... " << e << endl;
         }
         q.pop();
     } else if (q.front().type == token::tok_quote) {
@@ -109,24 +108,32 @@ sexpr_t parse(string s) {
     return parse_tokens(tokens);
 }
 
+
+size_t loop = 1;
+
+void flush(int sig) {
+    (void)sig;
+    cout << endl << "(" << loop << ")> ";
+    cout.flush();
+}
+
 void repl() {
     string s;
     sexpr_t e;
-    size_t loop = 0;
 
     cout << "This software comes with ABSOLUTLY NO WARRANTY." << endl;
     cout << "scmin++ is a basic scheme interpreter, GPLv2\n" << endl;
 
+    signal(SIGINT, &flush);
     sexpr::init_global();
     while (true) {
-        cout << "(" << ++loop << ")> ";
-        getline(cin, s);
-        if (s.length() == 0) {
+        cout << "(" << loop << ")> ";
+        if (not getline(cin, s)) {
             cout << "Bye!" << endl;
             break;
-        }
-        else if (not (e = parse(s)))
+        } else if (not (e = parse(s)))
             continue;
+        loop++;
         cout << "=> "<< eval(e, sexpr::global) << endl;
     }
 }

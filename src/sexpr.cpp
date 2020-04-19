@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 23:10:59 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 18:03:34 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -40,22 +40,23 @@ sexpr_t cons(const sexpr_t& car, const sexpr_t& cdr) {
     return make_shared<sexpr>(car, cdr);
 }
 
-sexpr_t list(const sexpr_t& car...) {
-    stack<sexpr_t> s;
-    va_list args;
+// clang is really strict!!
+// sexpr_t list(const sexpr_t& car...) {
+//     stack<sexpr_t> s;
+//     va_list args;
 
-    s.push(car);
-    va_start(args, car);
-    do s.push(va_arg(args, sexpr_t));
-    while (not s.top()->isnil());
-    va_end(args);
-    while (s.size() > 1) {
-        auto u = s.top(); s.pop();
-        auto v = s.top(); s.pop();
-        s.push(cons(v, u));
-    }
-    return s.top();
-}
+//     s.push(car);
+//     va_start(args, car);
+//     do s.push(va_arg(args, sexpr_t));
+//     while (not s.top()->isnil());
+//     va_end(args);
+//     while (s.size() > 1) {
+//         auto u = s.top(); s.pop();
+//         auto v = s.top(); s.pop();
+//         s.push(cons(v, u));
+//     }
+//     return s.top();
+// }
 
 bool sexpr::isnil() {
     return blob->type() == typeid(sexpr_nil);
@@ -155,17 +156,14 @@ sexpr_t eval_args(const sexpr_t& args, env_t& parent) {
 }
 
 sexpr_t sexpr::eval(const sexpr_t& args, env_t& bindings) {
-    sexpr_t evaled;
-
     if (not islambda()) {
         cerr << "operator is not lambda" << endl;
         return nullptr;
     }
     auto lamb = any_cast<sexpr_lambda>(*blob);
-    if (lamb.native == native_quote)
-        return lamb.native(args, bindings);
-    evaled = eval_args(args, bindings);
-    return lamb.eval(evaled, bindings);
+    if (not lamb.require_evaled_args())
+        return lamb.eval(args, bindings);
+    return lamb.eval(eval_args(args, bindings), bindings);
 }
 
 sexpr_t eval(const sexpr_t& expr, env_t& parent) {

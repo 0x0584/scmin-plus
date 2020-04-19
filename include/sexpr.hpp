@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 23:21:02 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 21:57:23 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -27,8 +27,8 @@
 
 using namespace std;
 
-typedef shared_ptr<struct sexpr> sexpr_t;
-typedef weak_ptr<struct sexpr> gc_sexpr_t;
+typedef shared_ptr<class sexpr> sexpr_t;
+typedef weak_ptr<class sexpr> gc_sexpr_t;
 typedef unordered_map<string, sexpr_t> env_t;
 typedef sexpr_t (*native_lambda)(const sexpr_t&, env_t&);
 
@@ -41,7 +41,7 @@ sexpr_t lambda(const sexpr_t& args, const sexpr_t& body);
 sexpr_t native(native_lambda fn);
 sexpr_t eval(const sexpr_t& expr, env_t& parent);
 sexpr_t eval_args(const sexpr_t& args, env_t& parent);
-sexpr_t list(const sexpr_t& car...);
+// sexpr_t list(const sexpr_t& car...);
 
 class sexpr
 {
@@ -91,10 +91,15 @@ class sexpr
             : args(foo->car()), body(foo->cdr()), native(nullptr) {}
 
         bool bindargs(const sexpr_t& args, env_t& parent);
+        bool require_evaled_args(); // not the best name ever
         sexpr_t eval(const sexpr_t& args, env_t& parent);
 
+
         friend ostream& operator<<(ostream& os, sexpr_lambda b) {
-            os << "[args: " << b.args << ", body: " << b.body << "]";
+            if (b.native)
+                os << "[native]" << endl;
+            else
+                os << "[args: " << b.args << ", body: " << b.body << "]";
             return os;
         }
     };
@@ -161,8 +166,13 @@ public:
     static sexpr_t native_set(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_unset(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_quote(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_define(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_eval(const sexpr_t& args, env_t& bindings);
+
     static sexpr_t native_car(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_cdr(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_setcar(const sexpr_t& args, env_t& bindings);
+    static sexpr_t native_setcdr(const sexpr_t& args, env_t& bindings);
     static sexpr_t native_cons(const sexpr_t& args, env_t& bindings);
 
     static sexpr_t native_ispair(const sexpr_t& args, env_t& bindings);

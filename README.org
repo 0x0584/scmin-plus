@@ -15,21 +15,25 @@ Well, they are quite similar! They're both of the same programming paradigm, tha
 
 * TODOs [4/8]
 
-+ [X] create a conslist
-+ [-] extract tokens from expression
-  + [X] detect unbalanced tokens
++ [X] create data types
+  + [X] +create a conslist+
+  + [X] +create symbolic expression type+
++ [-] lexing expressions
+  + [X] extract tokens from expression
+  + [X] +detect unbalanced tokens+
   + [ ] handle expression over new multiple lines
   + [ ] handle comments
-+ [X] parse sexpr
-  + [X] parse a basic expression
-  + [X] detect parsing errors
-+ [X] eval sexpr
-+ [X] add lambdas
-+ [ ] add keywords:
-  + [ ] define
-  + [ ] if
-  + [ ] cond
-  + [ ] let
-  + [ ] let*
++ [X] +parse sexpr+
+  + [X] +parse a basic expression+
+  + [X] +detect parsing errors+
++ [X] +eval sexpr+
++ [X] +add lambdas+
++ [-] add keywords:
+  + [X] +define eval+
+  + [X] +car cdr cons+
+  + [X] +set-car! set-cdr! set! unset!+
+  + [X] +type indicators+
+  + [ ] if cond
+  + [ ] let let*
 + [ ] sophisticated error management
 + [ ] add GC

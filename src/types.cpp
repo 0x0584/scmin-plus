@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:09:16 by archid-           #+#    #+#             //
-//   Updated: 2020/04/18 23:08:46 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 20:14:03 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -47,9 +47,18 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
     return true;
 }
 
+bool sexpr::sexpr_lambda::require_evaled_args() {
+    return not (native == native_quote
+                or native == native_eval
+                or native == native_define
+                or native == native_set
+                or native == native_unset
+                or native == native_setcar
+                or native == native_setcdr);
+}
+
 sexpr_t sexpr::sexpr_lambda::eval(const sexpr_t& args, env_t& parent) {
     if (native) return native(args, parent);
-    if (not bindargs(args, parent))
-        return nullptr;
-    return ::eval(body, local);
+    else if (not bindargs(args, parent)) return nullptr;
+    else return ::eval(body, local);
 }
