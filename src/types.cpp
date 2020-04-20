@@ -6,11 +6,12 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:09:16 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 20:14:03 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 03:53:05 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include "sexpr.hpp"
+#include "builtin.hpp"
 
 string sexpr::sexpr_text::text() {
     if (sy) return s;
@@ -40,7 +41,10 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
 
     local = parent;
     while (not u->isnil()) {
-        // FIXME: only symbols are allowed
+        if (not u->car()->issymb()) {
+            cerr << "Err: argument is not a symbol" << endl;
+            return false;
+        }
         local[any_cast<sexpr_text>(*u->car()->blob).text()] = v->car();
         u = u->cdr(); v = v->cdr();
     }
@@ -48,13 +52,16 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
 }
 
 bool sexpr::sexpr_lambda::require_evaled_args() {
-    return not (native == native_quote
-                or native == native_eval
-                or native == native_define
-                or native == native_set
-                or native == native_unset
-                or native == native_setcar
-                or native == native_setcdr);
+    return not (native == builtin::_quote
+                or native == builtin::_eval
+                or native == builtin::_define
+                or native == builtin::_set
+                or native == builtin::_unset
+                or native == builtin::_setcar
+                or native == builtin::_setcdr
+                or native == builtin::_if
+                or native == builtin::_cond
+                or native == builtin::_let);
 }
 
 sexpr_t sexpr::sexpr_lambda::eval(const sexpr_t& args, env_t& parent) {

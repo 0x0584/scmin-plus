@@ -13,19 +13,21 @@ Now, what's more fascinating, is that previously I had used C, which did many th
 
 Well, they are quite similar! They're both of the same programming paradigm, that is both belong are [[http://www-formal.stanford.edu/jmc/recursive.pdf][functional languages]]. Yet they differ on an [[http://stackoverflow.com/questions/5368090/ddg#5372482][implementation]] level.
 
-* TODOs [4/8]
+* TODOs [3/7]
 
-+ [X] create data types
-  + [X] +create a conslist+
++ [X] +create data types+
+  + [X] +create a conslist type+
+  + [X] +create a token type+
   + [X] +create symbolic expression type+
 + [-] lexing expressions
   + [X] extract tokens from expression
   + [X] +detect unbalanced tokens+
   + [ ] handle expression over new multiple lines
   + [ ] handle comments
-+ [X] +parse sexpr+
++ [-] +parse sexpr+
   + [X] +parse a basic expression+
   + [X] +detect parsing errors+
+  + [ ] improve parsing errors detection
 + [X] +eval sexpr+
 + [X] +add lambdas+
 + [-] add keywords:
@@ -33,7 +35,8 @@ Well, they are quite similar! They're both of the same programming paradigm, tha
   + [X] +car cdr cons+
   + [X] +set-car! set-cdr! set! unset!+
   + [X] +type indicators+
-  + [ ] if cond
+  + [X] +if cond+
+  + [X] +comparison operators > < >= <= == !=+
+  + [X] +logical operators and or not+
   + [ ] let let*
 + [ ] sophisticated error management
-+ [ ] add GC

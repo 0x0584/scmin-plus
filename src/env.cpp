@@ -6,19 +6,16 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 20:40:49 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 03:51:31 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
-#include "sexpr.hpp"
+#include "builtin.hpp"
 
-sexpr_t sexpr::context(const sexpr_t& expr, env_t& local) {
-    if (not expr) {
-        cerr << "scope err: no context for null" << endl;
-        return nullptr;
-    }
-    if (not expr->issymb()) return expr;
-    string sy = any_cast<sexpr_text>(*expr->blob).text();
+sexpr_t sexpr::resolve(const sexpr_t& expr, env_t& local) {
+    if (not (expr and expr->issymb()))
+        return expr;
+    auto sy = any_cast<sexpr_text>(*expr->blob).text();
     auto it = local.find(sy);
     if (it != end(local))
         return it->second;
@@ -28,74 +25,58 @@ sexpr_t sexpr::context(const sexpr_t& expr, env_t& local) {
     else return expr;
 }
 
-void sexpr::unbind(const sexpr_t& expr, env_t& local) {
-    if (not expr) {
-        cerr << "scope err: unbinding null" << endl;
-        return;
-    }
-    string sy = any_cast<sexpr_text>(*expr->blob).text();
-    if (local.find(sy) != end(local)) local.erase(sy);
-    else if (global.find(sy) != end(global)) global.erase(sy);
-}
-
-bool sexpr::bind(const sexpr_t& rexpr, const sexpr_t& lexpr,
-                 env_t& local) {
-    if (not rexpr or not lexpr) {
-        cerr << "scope err: cannot bind null!" << endl;
-        return false;
-    }
-    if (not rexpr->issymb()) {
-        cerr << "scope err: only symbols are bind-able" << endl;
-        return false;
-    }
-    local[any_cast<sexpr_text>(*rexpr->blob).text()] = lexpr;
-    return true;
-}
-
 void sexpr::init_global() {
-    sexpr::global["add"] = native(sexpr::native_add);
-    sexpr::global["+"] = native(sexpr::native_add);
-    sexpr::global["sub"] = native(sexpr::native_sub);
-    sexpr::global["-"] = native(sexpr::native_sub);
-    sexpr::global["mul"] = native(sexpr::native_mul);
-    sexpr::global["*"] = native(sexpr::native_mul);
-    sexpr::global["div"] = native(sexpr::native_div);
-    sexpr::global["/"] = native(sexpr::native_div);
+    sexpr::global["add"] = native(builtin::_add);
+    sexpr::global["+"] = native(builtin::_add);
+    sexpr::global["sub"] = native(builtin::_sub);
+    sexpr::global["-"] = native(builtin::_sub);
+    sexpr::global["mul"] = native(builtin::_mul);
+    sexpr::global["*"] = native(builtin::_mul);
+    sexpr::global["div"] = native(builtin::_div);
+    sexpr::global["/"] = native(builtin::_div);
 
-    sexpr::global["gt?"] = native(sexpr::native_gt);
-    sexpr::global["ge?"] = native(sexpr::native_gt_eq);
-    sexpr::global["le?"] = native(sexpr::native_lt_eq);
-    sexpr::global["lt?"] = native(sexpr::native_lt);
-    sexpr::global["eq?"] = native(sexpr::native_eq);
-    sexpr::global["ne?"] = native(sexpr::native_n_eq);
+    sexpr::global["gt?"] = native(builtin::_gt);
+    sexpr::global["ge?"] = native(builtin::_gt_eq);
+    sexpr::global["le?"] = native(builtin::_lt_eq);
+    sexpr::global["lt?"] = native(builtin::_lt);
+    sexpr::global["eq?"] = native(builtin::_eq);
+    sexpr::global["ne?"] = native(builtin::_n_eq);
 
-    sexpr::global[">?"] = native(sexpr::native_gt);
-    sexpr::global[">=?"] = native(sexpr::native_gt_eq);
-    sexpr::global["<=?"] = native(sexpr::native_lt_eq);
-    sexpr::global["<?"] = native(sexpr::native_lt);
-    sexpr::global["==?"] = native(sexpr::native_eq);
-    sexpr::global["!=?"] = native(sexpr::native_n_eq);
+    sexpr::global[">?"] = native(builtin::_gt);
+    sexpr::global[">=?"] = native(builtin::_gt_eq);
+    sexpr::global["<=?"] = native(builtin::_lt_eq);
+    sexpr::global["<?"] = native(builtin::_lt);
+    sexpr::global["==?"] = native(builtin::_eq);
+    sexpr::global["!=?"] = native(builtin::_n_eq);
 
-    sexpr::global["cons"] = native(sexpr::native_cons);
-    sexpr::global["cdr"] = native(sexpr::native_cdr);
-    sexpr::global["car"] = native(sexpr::native_car);
-    sexpr::global["set-cdr!"] = native(sexpr::native_setcdr);
-    sexpr::global["set-car!"] = native(sexpr::native_setcar);
+    sexpr::global["cons"] = native(builtin::_cons);
+    sexpr::global["cdr"] = native(builtin::_cdr);
+    sexpr::global["car"] = native(builtin::_car);
+    sexpr::global["set-cdr!"] = native(builtin::_setcdr);
+    sexpr::global["set-car!"] = native(builtin::_setcar);
 
-    sexpr::global["quote"] = native(sexpr::native_quote);
-    sexpr::global["print"] = native(sexpr::native_print);
+    sexpr::global["quote"] = native(builtin::_quote);
+    sexpr::global["print"] = native(builtin::_print);
 
-    sexpr::global["pair?"] = native(sexpr::native_ispair);
-    sexpr::global["list?"] = native(sexpr::native_islist);
-    sexpr::global["symbol?"] = native(sexpr::native_issymb);
-    sexpr::global["string?"] = native(sexpr::native_isstr);
-    sexpr::global["number?"] = native(sexpr::native_isnum);
-    sexpr::global["lambda?"] = native(sexpr::native_islambda);
-    sexpr::global["nil?"] = native(sexpr::native_isnil);
+    sexpr::global["pair?"] = native(builtin::_ispair);
+    sexpr::global["list?"] = native(builtin::_islist);
+    sexpr::global["symbol?"] = native(builtin::_issymb);
+    sexpr::global["string?"] = native(builtin::_isstr);
+    sexpr::global["number?"] = native(builtin::_isnum);
+    sexpr::global["lambda?"] = native(builtin::_islambda);
+    sexpr::global["nil?"] = native(builtin::_isnil);
 
-    sexpr::global["define"] = native(sexpr::native_define);
-    sexpr::global["set!"] = native(sexpr::native_set);
-    sexpr::global["unset!"] = native(sexpr::native_unset);
-    sexpr::global["eval"] = native(sexpr::native_eval);
+    sexpr::global["define"] = native(builtin::_define);
+    sexpr::global["set!"] = native(builtin::_set);
+    sexpr::global["unset!"] = native(builtin::_unset);
+    sexpr::global["eval"] = native(builtin::_eval);
+    sexpr::global["if"] = native(builtin::_if);
+    sexpr::global["and"] = native(builtin::_and);
+    sexpr::global["or"] = native(builtin::_or);
+    sexpr::global["not"] = native(builtin::_not);
+    sexpr::global["cond"] = native(builtin::_cond);
+    sexpr::global["let"] = native(builtin::_let);
+    sexpr::global["list"] = native(builtin::_list);
+    sexpr::global["begin"] = native(builtin::_begin);
 
 }

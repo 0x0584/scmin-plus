@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 18:03:34 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 03:40:02 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -32,7 +32,7 @@ sexpr_t lambda(const sexpr_t& args, const sexpr_t& body) {
     return make_shared<sexpr>(cons(args, body));
 }
 
-sexpr_t native(native_lambda fn) {
+sexpr_t native(builtin_lambda fn) {
     return make_shared<sexpr>(fn);
 }
 
@@ -156,10 +156,6 @@ sexpr_t eval_args(const sexpr_t& args, env_t& parent) {
 }
 
 sexpr_t sexpr::eval(const sexpr_t& args, env_t& bindings) {
-    if (not islambda()) {
-        cerr << "operator is not lambda" << endl;
-        return nullptr;
-    }
     auto lamb = any_cast<sexpr_lambda>(*blob);
     if (not lamb.require_evaled_args())
         return lamb.eval(args, bindings);
@@ -168,11 +164,15 @@ sexpr_t sexpr::eval(const sexpr_t& args, env_t& bindings) {
 
 sexpr_t eval(const sexpr_t& expr, env_t& parent) {
     sexpr_t op;
+    sexpr_t res;
 
     if (not expr->islist())
-        return sexpr::context(expr, parent);
+        return sexpr::resolve(expr, parent);
     op = eval(expr->car(), parent);
-    if (not op or not op->islambda())
+    if (not op or not op->islambda()) {
+        cerr << "Err: operator is not a lambda" << endl;
         return nullptr;
-    return op->eval(expr->cdr(), parent);
+    }
+    res = op->eval(expr->cdr(), parent);
+    return sexpr::resolve(res, parent);
 }

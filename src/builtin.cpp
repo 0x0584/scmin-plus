@@ -1,21 +1,26 @@
 // ************************************************************************** //
 //                                                                            //
 //                                                        :::      ::::::::   //
-//   native.cpp                                         :+:      :+:    :+:   //
+//   builtin.cpp                                        :+:      :+:    :+:   //
 //                                                    +:+ +:+         +:+     //
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 20:39:51 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 04:00:59 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
-#include "sexpr.hpp"
+#include "builtin.hpp"
 
-// FIXME: unify the return values on failure
-// FIXME: remove some code redundancy
+// FIXME: unify the return values on failure ///////////////////////////////////
+//        this could actually be done by detecting them before actually
+//        evaluating them, things like like args count and typing issues
+//        could be raised earlier on in the parsing phase
+////////////////////////////////////////////////////////////////////////////////
 
-sexpr_t sexpr::native_add(const sexpr_t& args, env_t& bindings) {
+// FIXME: remove some code redundancy //////////////////////////////////////////
+
+sexpr_t builtin::_add(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t walk = args;
     double d = 0;
@@ -31,7 +36,7 @@ sexpr_t sexpr::native_add(const sexpr_t& args, env_t& bindings) {
     return num(d);
 }
 
-sexpr_t sexpr::native_sub(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_sub(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (not args->car()->isnum()) {
         cerr << "fatal: operand is not a number!" << endl;
@@ -55,7 +60,7 @@ sexpr_t sexpr::native_sub(const sexpr_t& args, env_t& bindings) {
     return num(d);
 }
 
-sexpr_t sexpr::native_mul(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_mul(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t walk = args;
     double d = 1;
@@ -71,7 +76,7 @@ sexpr_t sexpr::native_mul(const sexpr_t& args, env_t& bindings) {
     return num(d);
 }
 
-sexpr_t sexpr::native_div(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_div(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
 
     if (not args->car()->isnum()) {
@@ -91,7 +96,7 @@ sexpr_t sexpr::native_div(const sexpr_t& args, env_t& bindings) {
     return num(d);
 }
 
-sexpr_t sexpr::native_cons(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_cons(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 2) {
         cerr << "cons operator requires exactly two arguments" << endl;
@@ -100,7 +105,7 @@ sexpr_t sexpr::native_cons(const sexpr_t& args, env_t& bindings) {
     return cons(args->car(), args->cdr()->car());
 }
 
-sexpr_t sexpr::native_car(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_car(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "car expects only one argument" << endl;
@@ -114,7 +119,7 @@ sexpr_t sexpr::native_car(const sexpr_t& args, env_t& bindings) {
     return args->car()->car();
 }
 
-sexpr_t sexpr::native_cdr(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_cdr(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "cdr expects only one argument" << endl;
@@ -128,7 +133,7 @@ sexpr_t sexpr::native_cdr(const sexpr_t& args, env_t& bindings) {
     return args->car()->cdr();
 }
 
-sexpr_t sexpr::native_setcar(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_setcar(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (not args->car()->issymb() or args->length() != 2) {
         cerr << "Err: cannot set constant!" << endl;
@@ -146,7 +151,7 @@ sexpr_t sexpr::native_setcar(const sexpr_t& args, env_t& bindings) {
     return symb("t");
 }
 
-sexpr_t sexpr::native_setcdr(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_setcdr(const sexpr_t& args, env_t& bindings) {
     if (not args->car()->issymb() or args->length() != 2) {
         cerr << "Err: cannot set constant!" << endl;
         return nullptr;
@@ -163,7 +168,7 @@ sexpr_t sexpr::native_setcdr(const sexpr_t& args, env_t& bindings) {
     return symb("t");
 }
 
-sexpr_t sexpr::native_quote(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_quote(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1 ) {
         cerr << "quote expects only one argument" << endl;
@@ -172,12 +177,12 @@ sexpr_t sexpr::native_quote(const sexpr_t& args, env_t& bindings) {
     return args->car();
 }
 
-sexpr_t sexpr::native_print(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_print(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     return args;
 }
 
-sexpr_t sexpr::native_ispair(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_ispair(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -186,7 +191,7 @@ sexpr_t sexpr::native_ispair(const sexpr_t& args, env_t& bindings) {
     return args->car()->ispair() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_islist(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_islist(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -195,7 +200,7 @@ sexpr_t sexpr::native_islist(const sexpr_t& args, env_t& bindings) {
     return args->car()->islist() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_isnum(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_isnum(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -204,7 +209,7 @@ sexpr_t sexpr::native_isnum(const sexpr_t& args, env_t& bindings) {
     return args->car()->isnum() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_isnil(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_isnil(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -213,7 +218,7 @@ sexpr_t sexpr::native_isnil(const sexpr_t& args, env_t& bindings) {
     return args->car()->isnil() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_isstr(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_isstr(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -222,7 +227,7 @@ sexpr_t sexpr::native_isstr(const sexpr_t& args, env_t& bindings) {
     return args->car()->isstr() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_issymb(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_issymb(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -231,7 +236,7 @@ sexpr_t sexpr::native_issymb(const sexpr_t& args, env_t& bindings) {
     return args->car()->issymb() ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_islambda(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_islambda(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     if (args->length() != 1) {
         cerr << "Err: expect one argument" << endl;
@@ -255,7 +260,7 @@ bool valid_numeric_args(sexpr_t args) {
     return true;
 }
 
-sexpr_t sexpr::native_n_eq(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_n_eq(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -264,7 +269,7 @@ sexpr_t sexpr::native_n_eq(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, !=) ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_eq(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_eq(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -273,7 +278,7 @@ sexpr_t sexpr::native_eq(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, ==) ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_gt(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_gt(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -282,7 +287,7 @@ sexpr_t sexpr::native_gt(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, >) ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_gt_eq(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_gt_eq(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -291,7 +296,7 @@ sexpr_t sexpr::native_gt_eq(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, >=) ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_lt(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_lt(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -300,7 +305,7 @@ sexpr_t sexpr::native_lt(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, <) ? symb("t") : nil();
 }
 
-sexpr_t sexpr::native_lt_eq(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_lt_eq(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t u, v;
     if (not valid_numeric_args(args))
@@ -309,8 +314,40 @@ sexpr_t sexpr::native_lt_eq(const sexpr_t& args, env_t& bindings) {
     return cmp_helper(u, v, <=) ? symb("t") : nil();
 }
 
+sexpr_t builtin::_and(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t walk = args;
 
-sexpr_t sexpr::native_define(const sexpr_t& args, env_t& bindings) {
+    while (not walk->isnil()) {
+        if (walk->car()->isnil())
+            return nil();
+        walk = walk->cdr();
+    }
+    return symb("t");
+}
+
+sexpr_t builtin::_or(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    sexpr_t walk = args;
+
+    while (not walk->isnil()) {
+        if (not walk->car()->isnil())
+            return symb("t");
+        walk = walk->cdr();
+    }
+    return nil();
+}
+
+sexpr_t builtin::_not(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    if (args->length() != 1) {
+        cerr << "Err: not takes only one argument" << endl;
+        return nullptr;
+    }
+    return args->car()->isnil() ? symb("t") : nil();
+}
+
+sexpr_t builtin::_define(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 2) {
         cerr << "Err: define expects two arguments" << endl;
         return nullptr;
@@ -328,7 +365,7 @@ sexpr_t sexpr::native_define(const sexpr_t& args, env_t& bindings) {
     return symb("t");
 }
 
-sexpr_t sexpr::native_set(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_set(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 2) {
         cerr << "Err: expecting two arguments!" << endl;
         return nil();
@@ -346,7 +383,7 @@ sexpr_t sexpr::native_set(const sexpr_t& args, env_t& bindings) {
     return symb("t");
 }
 
-sexpr_t sexpr::native_unset(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_unset(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 1) {
         cerr << "Err: expecting one argument!" << endl;
         return nil();
@@ -364,10 +401,86 @@ sexpr_t sexpr::native_unset(const sexpr_t& args, env_t& bindings) {
     return symb("t");
 }
 
-sexpr_t sexpr::native_eval(const sexpr_t& args, env_t& bindings) {
+sexpr_t builtin::_eval(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 1) {
         cerr << "Err: eval expects one argument" << endl;
         return nullptr;
     }
     return ::eval(args->car(), bindings);
+}
+
+sexpr_t builtin::_list(const sexpr_t& args, env_t& bindings) {
+    (void)bindings;
+    return args;
+}
+
+sexpr_t builtin::_if(const sexpr_t& args, env_t& bindings) {
+    if (args->length() < 2 or args->length() > 3) {
+        cerr << "Err: if requires a condition and at most two expression" << endl;
+        return nullptr;
+    }
+    sexpr_t s = ::eval(args->car(), bindings);
+    if (not s) return nullptr;
+    else if (not s->isnil())
+        return ::eval(args->cdr()->car(), bindings);
+    else if (not args->cdr()->cdr()->isnil())
+        return ::eval(args->cdr()->cdr()->car(), bindings);
+    return nil();
+}
+
+sexpr_t builtin::_begin(const sexpr_t& args, env_t& bindings) {
+    sexpr_t walk = args;
+    sexpr_t res = nil();
+
+    while (not walk->isnil()) {
+        res = ::eval(walk->car(), bindings);
+        walk = walk->cdr();
+    }
+    return res;
+}
+
+sexpr_t builtin::_cond(const sexpr_t& args, env_t& bindings) {
+    sexpr_t walk = args;
+    sexpr_t curr;
+
+    while (not walk->isnil()) {
+        if (not walk->car()->islist()) {
+            cerr << "Err: cond clauses need to be a list" << endl;
+            return nullptr;
+        }
+        curr = walk->car();
+        if ((curr->car()->issymb() and
+             any_cast<sexpr_text>(*curr->car()->blob).text() == "else")
+            or not ::eval(curr->car(), bindings)->isnil()) {
+            return builtin::_begin(curr->cdr(), bindings);
+        }
+        walk = walk->cdr();
+    }
+    return nil();
+}
+
+sexpr_t builtin::_let(const sexpr_t& args, env_t& bindings) {
+    if (args->length() < 2) {
+        cerr << "Err: let requires an env and sexpr(s)" << endl;
+        return nullptr;
+    }
+
+    env_t local = bindings;
+    sexpr_t walk = args->car(), curr;
+
+    while (not walk->isnil()) {
+        curr = walk->car();
+        if (not curr->islist() or curr->length() != 2) {
+            cerr << "Err: let bound is mal formatted" << endl;
+            return nullptr;
+        }
+        if (not curr->car()->issymb()) {
+            cerr << "Err: cannot bind constant" << endl;
+            return nullptr;
+        }
+        auto sy = any_cast<sexpr_text>(*curr->car()->blob).text();
+        local[sy] = curr->cdr()->car();
+        walk = walk->cdr();
+    }
+    return builtin::_begin(args->cdr(), local);
 }

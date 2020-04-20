@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 21:50:04 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 01:39:16 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -72,7 +72,8 @@ bool token::next_text(string& e) {
 bool token::next_token(string& e, token& tok) {
     for (int i = 0; e[i] and isspace(e[i]); i++)
         e.erase(i--, 1);
-    if (e.empty()) return false;
+    if (e.empty() or e[0] == ';')
+        return false;
     return tok.next_paren(e) or tok.next_string(e)
         or tok.next_special(e) or tok.next_text(e);
 }

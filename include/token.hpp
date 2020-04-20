@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:00:33 by archid-           #+#    #+#             //
-//   Updated: 2020/04/15 00:55:57 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/19 23:37:36 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -54,7 +54,7 @@ struct token
             }
 
             if (flag) return num(stod(s));
-            else return symb(s);
+            else return s == "nil" ? nil() : symb(s);
         } else if (type == tok_str) {
             return str(s);
         }

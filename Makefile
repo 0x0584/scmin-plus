@@ -6,7 +6,7 @@
 #    By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/04/09 23:37:54 by archid-           #+#    #+#              #
-#    Updated: 2020/04/19 13:15:47 by archid-          ###   ########.fr        #
+#    Updated: 2020/04/20 03:53:28 by archid-          ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -21,19 +21,25 @@ HDRS        = $(shell find $(HEADIR) -name '*.hpp' -type f)
 OBJS        = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
 
 CC          = clang++
-CPPFLAGS    = -Wall -Wextra -I$(HEADIR) -std=c++17 -g
+CPPFLAGS    = -Wall -Wextra -pedantic -I$(HEADIR) -std=c++17 -g
 
-all: $(NAME)
+all: init $(NAME)
+
+init:
+	@echo "CC: " $(CC) $(CPPFLAGS)
+	@echo
 
 $(NAME): $(OBJS)
-	$(CC) $(CPPFLAGS) -o $@ $^
+	@echo "CC " $@
+	@$(CC) $(CPPFLAGS) -o $@ $^
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HDRS)
 	@mkdir -p $(@D)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	@echo "CC " $(notdir $<)
+	@$(CC) $(CPPFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJS)
+	@rm -rf $(OBJS)
 
 re: clean all
 
