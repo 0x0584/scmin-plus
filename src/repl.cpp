@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 19:59:59 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 00:21:21 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -53,7 +53,7 @@ sexpr_t parse_tokens(queue<token>& q) {
                     cerr << "parsing error! pair is not valid" << endl;
                     return nullptr;
                 }
-                tail->setcar(cons(tail->car(), tmp));
+                tail->setcdr(tmp);
                 break;
             } else if (q.front().type == token::tok_lambda) {
                 q.pop();
@@ -74,10 +74,7 @@ sexpr_t parse_tokens(queue<token>& q) {
                 e = lambda(args, body);
                 break;
             } else {
-                tmp = static_cast<sexpr_t>(q.front());
-                // cout << "here!!!" << endl;
-                // cout << tmp << endl;
-                q.pop();
+                tmp = q.front(); q.pop();
             }
 
             if (not tmp)
@@ -134,6 +131,7 @@ void repl() {
         } else if (not (e = parse(s)))
             continue;
         loop++;
-        cout << "=> "<< eval(e, sexpr::global) << endl;
+        e = eval(e, sexpr::global);
+        cout << "=> "<<  e << endl;
     }
 }

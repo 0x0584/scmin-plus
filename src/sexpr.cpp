@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:53:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 03:40:02 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 22:53:37 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -99,14 +99,14 @@ bool sexpr::issymb() {
 }
 
 bool sexpr::setcar(const sexpr_t& e) {
-    if (not (e->ispair() or e->islist()))
+    if (not (ispair() or islist()))
         return false;
     any_cast<sexpr_conslist *>(*blob)->car = e;
     return true;
 }
 
 bool sexpr::setcdr(const sexpr_t& e) {
-    if (not (e->ispair() or e->islist()))
+    if (not (ispair() or islist()))
         return false;
     any_cast<sexpr_conslist *>(*blob)->cdr = e;
     return true;
@@ -166,11 +166,11 @@ sexpr_t eval(const sexpr_t& expr, env_t& parent) {
     sexpr_t op;
     sexpr_t res;
 
-    if (not expr->islist())
+    if (not (expr and expr->islist()))
         return sexpr::resolve(expr, parent);
     op = eval(expr->car(), parent);
     if (not op or not op->islambda()) {
-        cerr << "Err: operator is not a lambda" << endl;
+        cerr << "Err: operator " << op << " is not a lambda" << endl;
         return nullptr;
     }
     res = op->eval(expr->cdr(), parent);

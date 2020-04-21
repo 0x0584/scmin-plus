@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 03:51:31 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 20:43:58 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -35,19 +35,19 @@ void sexpr::init_global() {
     sexpr::global["div"] = native(builtin::_div);
     sexpr::global["/"] = native(builtin::_div);
 
-    sexpr::global["gt?"] = native(builtin::_gt);
-    sexpr::global["ge?"] = native(builtin::_gt_eq);
-    sexpr::global["le?"] = native(builtin::_lt_eq);
-    sexpr::global["lt?"] = native(builtin::_lt);
-    sexpr::global["eq?"] = native(builtin::_eq);
-    sexpr::global["ne?"] = native(builtin::_n_eq);
+    sexpr::global["gt"] = native(builtin::_gt);
+    sexpr::global["ge"] = native(builtin::_gt_eq);
+    sexpr::global["le"] = native(builtin::_lt_eq);
+    sexpr::global["lt"] = native(builtin::_lt);
+    sexpr::global["eq"] = native(builtin::_eq);
+    sexpr::global["ne"] = native(builtin::_n_eq);
 
-    sexpr::global[">?"] = native(builtin::_gt);
-    sexpr::global[">=?"] = native(builtin::_gt_eq);
-    sexpr::global["<=?"] = native(builtin::_lt_eq);
-    sexpr::global["<?"] = native(builtin::_lt);
-    sexpr::global["==?"] = native(builtin::_eq);
-    sexpr::global["!=?"] = native(builtin::_n_eq);
+    sexpr::global[">"] = native(builtin::_gt);
+    sexpr::global[">="] = native(builtin::_gt_eq);
+    sexpr::global["<="] = native(builtin::_lt_eq);
+    sexpr::global["<"] = native(builtin::_lt);
+    sexpr::global["="] = native(builtin::_eq);
+    sexpr::global["!="] = native(builtin::_n_eq);
 
     sexpr::global["cons"] = native(builtin::_cons);
     sexpr::global["cdr"] = native(builtin::_cdr);
@@ -76,6 +76,8 @@ void sexpr::init_global() {
     sexpr::global["not"] = native(builtin::_not);
     sexpr::global["cond"] = native(builtin::_cond);
     sexpr::global["let"] = native(builtin::_let);
+    sexpr::global["let*"] = native(builtin::_let_astrk);
+    sexpr::global["letrec"] = native(builtin::_let_rec);
     sexpr::global["list"] = native(builtin::_list);
     sexpr::global["begin"] = native(builtin::_begin);
 

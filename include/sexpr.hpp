@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 03:46:56 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/20 22:36:45 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -41,6 +41,8 @@ sexpr_t native(builtin_lambda fn);
 sexpr_t eval(const sexpr_t& expr, env_t& parent);
 sexpr_t eval_args(const sexpr_t& args, env_t& parent);
 // sexpr_t list(const sexpr_t& car...);
+
+// FIXME: use polymorphism instead of those structs!
 
 struct sexpr
 {

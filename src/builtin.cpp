@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 04:00:59 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 00:41:54 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -179,7 +179,13 @@ sexpr_t builtin::_quote(const sexpr_t& args, env_t& bindings) {
 
 sexpr_t builtin::_print(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
-    return args;
+    sexpr_t walk = args;
+
+    while (not walk->isnil()) {
+        cout << walk->car() << (walk->cdr()->isnil() ? "\n" : " ");
+        walk = walk->cdr();
+    }
+    return nil();
 }
 
 sexpr_t builtin::_ispair(const sexpr_t& args, env_t& bindings) {
@@ -465,8 +471,61 @@ sexpr_t builtin::_let(const sexpr_t& args, env_t& bindings) {
         return nullptr;
     }
 
+    unordered_set<string> seen;
+    bool labeled = args->car()->issymb();
+    env_t local = bindings;
+    sexpr_t walk = labeled ? args->cdr()->car(): args->car(),
+        curr;
+    sexpr_t let_args, let_args_tail;
+
+    if (not walk->islist()) {
+        cerr << "Err: let is mal formatted" << endl;
+        return nullptr;
+    }
+    while (not walk->isnil()) {
+        curr = walk->car();
+        if (not curr->islist() or curr->length() != 2) {
+            cerr << "Err: let bound is mal formatted" << endl;
+            return nullptr;
+        }
+        if (not curr->car()->issymb()) {
+            cerr << "Err: cannot bind constant" << endl;
+            return nullptr;
+        }
+        auto sy = any_cast<sexpr_text>(*curr->car()->blob).text();
+        if (not seen.insert(sy).second) {
+            cerr << "Err: variable appeared twice!" << endl;
+            return nil();
+        }
+        if (labeled) {
+            auto tmp = cons(curr->car(), nil());
+            if (not let_args) {
+                let_args_tail = let_args = tmp;
+            } else {
+                let_args_tail->setcdr(tmp);
+                let_args_tail = let_args_tail->cdr();
+            }
+        }
+        local[sy] = curr->cdr()->car();
+        walk = walk->cdr();
+    }
+    if (labeled) {
+        auto let_lambda = lambda(let_args, cons(symb("begin"),
+                                                args->cdr()->cdr()));
+        local[any_cast<sexpr_text>(*args->car()->blob).text()] = let_lambda;
+    }
+    return builtin::_begin(labeled ? args->cdr()->cdr() : args->cdr(), local) ;
+}
+
+sexpr_t builtin::_let_astrk(const sexpr_t& args, env_t& bindings) {
+    if (args->length() < 2) {
+        cerr << "Err: let requires an env and sexpr(s)" << endl;
+        return nullptr;
+    }
+
     env_t local = bindings;
     sexpr_t walk = args->car(), curr;
+    unordered_set<string> seen;
 
     while (not walk->isnil()) {
         curr = walk->car();
@@ -479,7 +538,42 @@ sexpr_t builtin::_let(const sexpr_t& args, env_t& bindings) {
             return nullptr;
         }
         auto sy = any_cast<sexpr_text>(*curr->car()->blob).text();
-        local[sy] = curr->cdr()->car();
+        if (not seen.insert(sy).second) {
+            cerr << "Err: variable appeared twice!" << endl;
+            return nil();
+        }
+        local[sy] = sexpr::resolve(curr->cdr()->car(), local);
+        walk = walk->cdr();
+    }
+    return builtin::_begin(args->cdr(), local);
+}
+
+sexpr_t builtin::_let_rec(const sexpr_t& args, env_t& bindings) {
+    if (args->length() < 2) {
+        cerr << "Err: let requires an env and sexpr(s)" << endl;
+        return nullptr;
+    }
+
+    env_t local = bindings;
+    sexpr_t walk = args->car(), curr;
+    unordered_set<string> seen;
+
+    while (not walk->isnil()) {
+        curr = walk->car();
+        if (not curr->islist() or curr->length() != 2) {
+            cerr << "Err: let bound is mal formatted" << endl;
+            return nullptr;
+        }
+        if (not curr->car()->issymb()) {
+            cerr << "Err: cannot bind constant" << endl;
+            return nullptr;
+        }
+        auto sy = any_cast<sexpr_text>(*curr->car()->blob).text();
+        if (not seen.insert(sy).second) {
+            cerr << "Err: variable appeared twice!" << endl;
+            return nil();
+        }
+        local[sy] = ::eval(curr->cdr()->car(), local);
         walk = walk->cdr();
     }
     return builtin::_begin(args->cdr(), local);
