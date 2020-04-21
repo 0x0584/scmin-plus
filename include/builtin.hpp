@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/20 03:37:22 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 20:03:45 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 12:39:01 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -54,6 +54,7 @@ struct builtin : public sexpr
     static sexpr_t _or(const sexpr_t& args, env_t& bindings);
     static sexpr_t _not(const sexpr_t& args, env_t& bindings);
 
+    static sexpr_t _do(const sexpr_t& args, env_t& bindings);
     static sexpr_t _let(const sexpr_t& args, env_t& bindings);
     static sexpr_t _let_astrk(const sexpr_t& args, env_t& bindings);
     static sexpr_t _let_rec(const sexpr_t& args, env_t& bindings);

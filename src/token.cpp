@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/20 01:39:16 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 21:08:40 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -46,12 +46,17 @@ bool token::next_string(string& e) {
 
 bool token::next_special(string& e) {
     char c = e[0];
+
     if (c == '\'') {
         s = c, type = tok_quote;
         e.erase(0, 1);
         return true;
     } else if (c == '.') {
         s = c, type = tok_pair;
+        e.erase(0, 1);
+        return true;
+    } else if (c == '`') {
+        s = c, type = tok_quasi;
         e.erase(0, 1);
         return true;
     }
@@ -85,7 +90,7 @@ queue<token> token::tokenize(string& s) {
     paren = {};
     while (next_token(s, tok) and not tok.err)
         tokens.push(tok), tok = {};
-    // TODO: implement more sophisticated error management
+    // TODO: implement more sophisticated error management ////////////////////
     if (tok.err or paren.size()) {
         cerr << "there was error while lexing" << endl;
         return {};

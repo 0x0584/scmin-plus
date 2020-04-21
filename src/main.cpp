@@ -6,61 +6,41 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/16 22:46:35 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 20:41:40 by archid-          ###   ########.fr       //
  //                                                                            //
 // ************************************************************************** //
 
-#include "repl.hpp"
+#include "parser.hpp"
+
+size_t loop = 1;
+
+void flush(int sig) {
+    (void)sig;
+    cout << endl << "(" << loop << ")> ";
+    cout.flush();
+}
 
 int main()
 {
-    vector<string> good = {
-        // numbers
-        "10", "   20", "   20     ", "20      ",
-        "+10", "   -20", "   +20     ", "+20      ",
-        "78.34", "78.34      ", "   +78.34",
-        "   78.34     ",
+    cout << "This software comes with ABSOLUTLY NO WARRANTY." << endl;
+    cout << "scmin++ is a basic scheme interpreter, GPLv2\n" << endl;
 
-        // symbols
-        "foo", "   bar", "foobar  ", "foo-bar", "   foo-bar", "foo-bar   ",
-        "-+10", "   -+20",
-        "fo#$o", "   +-bar", "-foo+bar  ", "foo-bar",
+    signal(SIGINT, &flush);
+    sexpr::init_global();
+    while (true) {
+        sexpr_t e, res;
+        string s;
 
-        // strings
-        "\"this is a string\"",  "\"this + 11 is a strddd sing\"",
-
-        // conslists
-        "(op . po)", "   (op  op)", "(op param1         param2)",
-        "(op \"string arg\" 2)", "(op (\"string arg\") 2)",
-        "(op\"this\"2)", "(1(2(3(4)5)6)7)",
-        "('a 'b \" sdsd \" (quote bb))", "'(a . b)",
-
-        // nil
-        "'()", "nil",
-
-        // lambdas
-        "(lambda () ())", "(lambda () ((cons '() '())))", "(lambda (z) (e))",
-        "(lambda (x y) (foo baz baz))", "(lambda () (4))",
-        "((lambda (x y) (+ x y)) 4 5)", "(define foo (lambda (x y) (+ x y)))",
-
-    }, bad = {
-        "(gg 1 3", "one two)", ")()", "\"sssdsd"
-    };
-
-    // int i = 0;
-    // int err = 0;
-
-    // // string str = "(lambda (z) (e))";
-    // for (auto str : good) {
-    //     sexpr_t e;
-    //     cout << "#" << i++ << " [" << str << "] >> "
-    //          << (e = parse(str)) << endl;
-    //     if (e == nullptr) err++;
-    // }
-
-    // // cout << parse(str) << endl;
-    // cout << "exit! " << err << "/" << i << endl;
-    repl();
-    // if (err) return -1;
+        cout << "(" << loop << ")> ";
+        if (not getline(cin, s)) {
+            cout << "Bye!" << endl;
+            break;
+        } else if (not (e = parse(s)))
+            continue;
+        if ((res = eval(e, sexpr::global))) {
+            cout << "=> "<<  res << endl;
+            loop++;
+        }
+    }
     return 0;
 }

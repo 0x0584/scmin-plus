@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 00:41:54 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 14:56:28 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -358,16 +358,20 @@ sexpr_t builtin::_define(const sexpr_t& args, env_t& bindings) {
         cerr << "Err: define expects two arguments" << endl;
         return nullptr;
     }
-    if (not args->car()->issymb()) {
-        cerr << "Err: cannot set constant!" << endl;
+    bool is_lambda = args->car()->islist();
+    sexpr_t def = is_lambda ? args->car() : args;
+    if (not def->car()->issymb()) {
+        cerr << "Err: define is mal-formatted" << endl;
         return nullptr;
     }
-    auto sy = any_cast<sexpr_text>(*args->car()->blob).text();
+    auto sy = any_cast<sexpr_text>(*def->car()->blob).text();
     if (bindings.find(sy) != end(bindings)) {
         cerr << "Err: symbol is already defined, use set! instead" << endl;
         return nil();
     }
-    bindings[sy] = ::eval(args->cdr()->car(), bindings);
+    bindings[sy] = ::eval(is_lambda ? lambda(args->car()->cdr(),
+                                             args->cdr()->car()) :
+                          args->cdr()->car(), bindings);
     return symb("t");
 }
 
@@ -409,12 +413,13 @@ sexpr_t builtin::_unset(const sexpr_t& args, env_t& bindings) {
 
 sexpr_t builtin::_eval(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 1) {
-        cerr << "Err: eval expects one argument" << endl;
+        cerr << "Err: eval expects one expression" << endl;
         return nullptr;
     }
     return ::eval(args->car(), bindings);
 }
 
+// FIXME: list should be part of stdlib instead of builtin ////////////////////
 sexpr_t builtin::_list(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     return args;
@@ -506,7 +511,7 @@ sexpr_t builtin::_let(const sexpr_t& args, env_t& bindings) {
                 let_args_tail = let_args_tail->cdr();
             }
         }
-        local[sy] = curr->cdr()->car();
+        local[sy] = ::eval(curr->cdr()->car(), bindings);
         walk = walk->cdr();
     }
     if (labeled) {
@@ -542,7 +547,7 @@ sexpr_t builtin::_let_astrk(const sexpr_t& args, env_t& bindings) {
             cerr << "Err: variable appeared twice!" << endl;
             return nil();
         }
-        local[sy] = sexpr::resolve(curr->cdr()->car(), local);
+        local[sy] = ::eval(curr->cdr()->car(), local);
         walk = walk->cdr();
     }
     return builtin::_begin(args->cdr(), local);
@@ -560,7 +565,7 @@ sexpr_t builtin::_let_rec(const sexpr_t& args, env_t& bindings) {
 
     while (not walk->isnil()) {
         curr = walk->car();
-        if (not curr->islist() or curr->length() != 2) {
+        if (not curr or not curr->islist() or curr->length() != 2) {
             cerr << "Err: let bound is mal formatted" << endl;
             return nullptr;
         }
@@ -573,8 +578,22 @@ sexpr_t builtin::_let_rec(const sexpr_t& args, env_t& bindings) {
             cerr << "Err: variable appeared twice!" << endl;
             return nil();
         }
+        local[sy] = nil();
+        walk = walk->cdr();
+    }
+    walk = args->car();
+    while (not walk->isnil()) {
+        curr = walk->car();
+        auto sy = any_cast<sexpr_text>(*curr->car()->blob).text();
         local[sy] = ::eval(curr->cdr()->car(), local);
         walk = walk->cdr();
     }
     return builtin::_begin(args->cdr(), local);
 }
+
+sexpr_t builtin::_do(const sexpr_t& args, env_t& bindings) {
+
+    return nil();
+}
+
+// (do ((vec (make-vector 5)) (i 0 (+ i 1))) ((= i 5) vec) (vector-set! vec i i))

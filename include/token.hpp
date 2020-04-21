@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:00:33 by archid-           #+#    #+#             //
-//   Updated: 2020/04/19 23:37:36 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/21 17:56:54 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -25,7 +25,7 @@ struct token
     enum tok_type {
         tok_l_paren, tok_r_paren,
         tok_str, tok_num_or_symb,
-        tok_quote, tok_pair, tok_lambda
+        tok_quote, tok_quasi, tok_pair, tok_lambda
     } type;
 
     bool next_paren(string& e), next_string(string& e),
@@ -66,6 +66,7 @@ struct token
         else if (e == tok_r_paren) os << "tok_r_paren";
         else if (e == tok_str) os << "tok_str";
         else if (e == tok_quote) os << "tok_quote";
+        else if (e == tok_quasi) os << "tok_quasiquote";
         else if (e == tok_pair) os << "tok_pair";
         else if (e == tok_lambda) os << "tok_lambda";
         else os << "tok_num_or_symb";
