@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 14:56:28 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 09:09:03 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -175,6 +175,46 @@ sexpr_t builtin::_quote(const sexpr_t& args, env_t& bindings) {
         return nullptr;
     }
     return args->car();
+}
+
+sexpr_t builtin::_unquote(const sexpr_t& args, env_t& bindings) {
+    if (args->length() != 1 ) {
+        cerr << "quasiquote expects only one argument" << endl;
+        return nullptr;
+    }
+    return ::eval(args->car(), bindings);
+}
+
+sexpr_t builtin::_quasiquote(const sexpr_t& args, env_t& bindings) {
+    if (args->length() != 1 ) {
+        cerr << "quasiquote expects only one argument" << endl;
+        return nullptr;
+    }
+    sexpr_t e, tail, walk;
+
+    if (not args->car()->islist())
+        return args->car();
+    walk = args->car();
+    while (not walk->isnil()) {
+        sexpr_t tmp = cons(walk->car(), nil());
+
+        if (walk->car()->islist() and walk->car()->car()->issymb()) {
+            auto sy = any_cast<sexpr_text>(*walk->car()->car()->blob).text();
+            if (sy == "unquote" or sy == "unquote-splicing") {
+                tmp = builtin::_unquote(walk->car()->cdr(), bindings);
+                if (sy == "unquote")
+                    tmp = cons(tmp, nil());
+            }
+        }
+        if (not e)
+            tail = e = tmp;
+        else {
+            tail->setcdr(tmp);
+            tail = tail->cdr();
+        }
+        walk = walk->cdr();
+    }
+    return e;
 }
 
 sexpr_t builtin::_print(const sexpr_t& args, env_t& bindings) {
@@ -445,6 +485,7 @@ sexpr_t builtin::_begin(const sexpr_t& args, env_t& bindings) {
 
     while (not walk->isnil()) {
         res = ::eval(walk->car(), bindings);
+        if (not res) return nullptr;
         walk = walk->cdr();
     }
     return res;
@@ -592,7 +633,8 @@ sexpr_t builtin::_let_rec(const sexpr_t& args, env_t& bindings) {
 }
 
 sexpr_t builtin::_do(const sexpr_t& args, env_t& bindings) {
-
+    (void)args;
+    (void)bindings;
     return nil();
 }
 

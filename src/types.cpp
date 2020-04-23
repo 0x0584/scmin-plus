@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:09:16 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 14:54:51 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 09:05:16 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -35,7 +35,8 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
 
     if (u->length() != v->length()) {
         cerr << "argument count mismatched, expected "
-             << u->length() << "got " << v->length();
+             << u->length() << "got " << v->length()
+             << endl;
         return false;
     }
 
@@ -53,6 +54,7 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
 
 bool sexpr::sexpr_lambda::require_evaled_args() {
     return not (native == builtin::_quote
+                or native == builtin::_quasiquote
                 // or native == builtin::_eval
                 or native == builtin::_define
                 or native == builtin::_set

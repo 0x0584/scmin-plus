@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/20 03:37:22 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 12:39:01 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 08:25:56 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -26,6 +26,9 @@ struct builtin : public sexpr
     static sexpr_t _set(const sexpr_t& args, env_t& bindings);
     static sexpr_t _unset(const sexpr_t& args, env_t& bindings);
     static sexpr_t _quote(const sexpr_t& args, env_t& bindings);
+    static sexpr_t _unquote_sp(const sexpr_t& args, env_t& bindings);
+    static sexpr_t _unquote(const sexpr_t& args, env_t& bindings);
+    static sexpr_t _quasiquote(const sexpr_t& args, env_t& bindings);
     static sexpr_t _define(const sexpr_t& args, env_t& bindings);
     static sexpr_t _eval(const sexpr_t& args, env_t& bindings);
 

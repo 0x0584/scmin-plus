@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:09:28 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 20:41:43 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 07:55:56 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -17,6 +17,6 @@
 # include "token.hpp"
 
 sexpr_t parse(string s);
-sexpr_t parse_tokens(queue<token>& q);
+sexpr_t parse_tokens(queue<token>& q, bool quasi = false);
 
 #endif

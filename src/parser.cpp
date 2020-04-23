@@ -6,15 +6,38 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 21:04:56 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 09:04:12 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include "parser.hpp"
 
 sexpr_t parse_quasi(queue<token>& q) {
-    // TODO: parse a quasi quote along with unquote and splicing //////////////
-    return nil();
+    q.pop();
+    if (q.size() == 0 || q.front().type == token::tok_r_paren) {
+        cerr << "parsing error: empty quote";
+        return nullptr;
+    }
+    sexpr_t e = parse_tokens(q, true);
+    if (not e or e->isnil())
+        return e;
+    return cons(symb("quasiquote"), cons(e, nil()));
+}
+
+sexpr_t parse_unquote(queue<token>& q) {
+    token tok = q.front(); q.pop();
+    sexpr_t e;
+
+    if (q.size() == 0 || q.front().type == token::tok_r_paren) {
+        cerr << "parsing error: empty quote";
+        return nullptr;
+    }
+    e = parse_tokens(q, true);
+    if (not e or e->isnil())
+        return e;
+    return cons(symb(tok.type == token::tok_unquote ? "unquote"
+                     : "unquote-splicing"),
+                cons(e, nil()));
 }
 
 sexpr_t parse_quote(queue<token>& q) {
@@ -24,11 +47,12 @@ sexpr_t parse_quote(queue<token>& q) {
         return nullptr;
     }
     sexpr_t e = parse_tokens(q);
-    if (not e or e->isnil()) return e;
+    if (not e or e->isnil())
+        return e;
     return cons(symb("quote"), cons(e, nil()));
 }
 
-sexpr_t parse_tokens(queue<token>& q) {
+sexpr_t parse_tokens(queue<token>& q, bool quasi) {
     sexpr_t e;
     token tok;
 
@@ -47,7 +71,16 @@ sexpr_t parse_tokens(queue<token>& q) {
                 tmp = parse_tokens(q);
             else if (q.front().type == token::tok_quote)
                 tmp = parse_quote(q);
-            else if (q.front().type == token::tok_pair) {
+            else if (q.front().type == token::tok_quasi) {
+                tmp = parse_quasi(q);
+            } else if (q.front().type == token::tok_unquote
+                       or q.front().type == token::tok_unquote_sp) {
+                if (not quasi) {
+                    cerr << "Err: unquote appeared without quasiquote" << endl;
+                    return nullptr;
+                }
+                tmp = parse_unquote(q);
+            } else if (q.front().type == token::tok_pair) {
                 q.pop();
                 if (not e or q.front().type == token::tok_r_paren) {
                     cerr << "parsing error! pair is not valid" << endl;
@@ -96,6 +129,13 @@ sexpr_t parse_tokens(queue<token>& q) {
         e = parse_quote(q);
     } else if (q.front().type == token::tok_quasi) {
         e = parse_quasi(q);
+    } else if (q.front().type == token::tok_unquote
+               or q.front().type == token::tok_unquote_sp) {
+        if (not quasi) {
+            cerr << "Err: unquote appeared without quasiquote" << endl;
+            return nullptr;
+        }
+        e = parse_unquote(q);
     } else if (q.front().type == token::tok_pair) {
         cerr << "parsing error! pair is not valid" << endl;
         return nullptr;

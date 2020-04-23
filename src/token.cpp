@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 21:08:40 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/23 07:08:55 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -59,6 +59,10 @@ bool token::next_special(string& e) {
         s = c, type = tok_quasi;
         e.erase(0, 1);
         return true;
+    } else if (c == ',') {
+        s = c, type = (e[1] == '@' ? tok_unquote_sp : tok_unquote);
+        e.erase(0, 1 + (e[1] == '@'));
+        return true;
     }
     return false;
 }
@@ -97,3 +101,10 @@ queue<token> token::tokenize(string& s) {
     }
     return tokens;
 }
+
+// string sp = "!$%&*/:<=>?^_~";
+// if (not (::isalpha(e[0]) or sp.find(e[0]) == string::npos)) {
+//     cerr << "Invalid indetifier initial" << endl;
+//     tok.err = true;
+//     return true;
+// }

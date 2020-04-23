@@ -6,8 +6,8 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/10 08:20:52 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 20:41:40 by archid-          ###   ########.fr       //
- //                                                                            //
+//   Updated: 2020/04/23 02:08:26 by archid-          ###   ########.fr       //
+//                                                                            //
 // ************************************************************************** //
 
 #include "parser.hpp"
@@ -23,7 +23,7 @@ void flush(int sig) {
 int main()
 {
     cout << "This software comes with ABSOLUTLY NO WARRANTY." << endl;
-    cout << "scmin++ is a basic scheme interpreter, GPLv2\n" << endl;
+    cout << "scmin++ is a minimal Scheme interpreter.\n" << endl;
 
     signal(SIGINT, &flush);
     sexpr::init_global();
