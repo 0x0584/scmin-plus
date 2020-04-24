@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/20 03:37:22 by archid-           #+#    #+#             //
-//   Updated: 2020/04/23 08:25:56 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 18:44:22 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -14,6 +14,14 @@
 # define BUILTIN_H
 
 # include "sexpr.hpp"
+
+// FIXME: unify the return values on failure ///////////////////////////////////
+//        this could actually be done by detecting them before actually
+//        evaluating them, things like like args count and typing issues
+//        could be raised earlier on in the parsing phase
+////////////////////////////////////////////////////////////////////////////////
+
+// FIXME: remove some code redundancy //////////////////////////////////////////
 
 struct builtin : public sexpr
 {
@@ -34,9 +42,9 @@ struct builtin : public sexpr
 
     static sexpr_t _car(const sexpr_t& args, env_t& bindings);
     static sexpr_t _cdr(const sexpr_t& args, env_t& bindings);
-    static sexpr_t _setcar(const sexpr_t& args, env_t& bindings);
-    static sexpr_t _setcdr(const sexpr_t& args, env_t& bindings);
     static sexpr_t _cons(const sexpr_t& args, env_t& bindings);
+    static sexpr_t _cons_car_flavor(const sexpr_t& args, env_t& bindings);
+    static sexpr_t _cons_cdr_flavor(const sexpr_t& args, env_t& bindings);
 
     static sexpr_t _ispair(const sexpr_t& args, env_t& bindings);
     static sexpr_t _islist(const sexpr_t& args, env_t& bindings);

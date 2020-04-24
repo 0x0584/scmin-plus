@@ -6,166 +6,37 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/16 22:19:53 by archid-           #+#    #+#             //
-//   Updated: 2020/04/23 09:09:03 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 21:10:43 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include "builtin.hpp"
 
-// FIXME: unify the return values on failure ///////////////////////////////////
-//        this could actually be done by detecting them before actually
-//        evaluating them, things like like args count and typing issues
-//        could be raised earlier on in the parsing phase
+// FIXME: a lot of stuff should be in stdlib instead of builtins ///////////////
+//
+// this should be possible using syntax-rules, like let and let* and list...
 ////////////////////////////////////////////////////////////////////////////////
 
-// FIXME: remove some code redundancy //////////////////////////////////////////
-
-sexpr_t builtin::_add(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t walk = args;
-    double d = 0;
-
-    while (not walk->isnil()) {
-        if (not walk->car()->isnum()) {
-            cerr << "fatal: operands are not numbers!" << endl;
-            return nullptr;
-        }
-        d += any_cast<sexpr_number>(*walk->car()->blob).n;
-        walk = walk->cdr();
-    }
-    return num(d);
-}
-
-sexpr_t builtin::_sub(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (not args->car()->isnum()) {
-        cerr << "fatal: operand is not a number!" << endl;
-        return nullptr;
-    }
-    double d = any_cast<sexpr_number>(*args->car()->blob).n;
-
-    if (args->length() == 1)
-        return num(-d);
-
-    sexpr_t walk = args->cdr();
-
-    while (not walk->isnil()) {
-        if (not walk->car()->isnum()) {
-            cerr << "fatal: operands are not numbers!" << endl;
-            return nullptr;
-        }
-        d -= any_cast<sexpr_number>(*walk->car()->blob).n;
-        walk = walk->cdr();
-    }
-    return num(d);
-}
-
-sexpr_t builtin::_mul(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t walk = args;
-    double d = 1;
-
-    while (not walk->isnil()) {
-        if (not walk->car()->isnum()) {
-            cerr << "fatal: operands are not numbers!" << endl;
-            return nullptr;
-        }
-        d *= any_cast<sexpr_number>(*walk->car()->blob).n;
-        walk = walk->cdr();
-    }
-    return num(d);
-}
-
-sexpr_t builtin::_div(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-
-    if (not args->car()->isnum()) {
-        cerr << "fatal: operands are not numbers!" << endl;
-        return nullptr;
-    }
-    double d = any_cast<sexpr_number>(*args->car()->blob).n;
-    sexpr_t walk = args->cdr();
-    while (not walk->isnil()) {
-        if (not walk->car()->isnum()) {
-            cerr << "fatal: operands are not numbers!" << endl;
-            return nullptr;
-        }
-        d /= any_cast<sexpr_number>(*walk->car()->blob).n;
-        walk = walk->cdr();
-    }
-    return num(d);
-}
-
-sexpr_t builtin::_cons(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
+sexpr_t builtin::_define(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 2) {
-        cerr << "cons operator requires exactly two arguments" << endl;
+        cerr << "Err: define expects two arguments" << endl;
         return nullptr;
     }
-    return cons(args->car(), args->cdr()->car());
-}
-
-sexpr_t builtin::_car(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "car expects only one argument" << endl;
+    bool is_lambda = args->car()->islist();
+    sexpr_t def = is_lambda ? args->car() : args;
+    if (not def->car()->issymb()) {
+        cerr << "Err: define is mal-formatted" << endl;
         return nullptr;
     }
-    if (not (args->car()->islist() or args->car()->ispair())) {
-        // cerr << args << endl;
-        cerr << "car is applicable only on conslists" << endl;
-        return nullptr;
+    auto sy = any_cast<sexpr_text>(*def->car()->blob).text();
+    if (bindings.find(sy) != end(bindings)) {
+        cerr << "Err: symbol is already defined, use set! instead" << endl;
+        return nil();
     }
-    return args->car()->car();
-}
-
-sexpr_t builtin::_cdr(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "cdr expects only one argument" << endl;
-        return nullptr;
-    }
-    if (not (args->car()->islist() or args->car()->ispair())) {
-        // cerr << args << endl;
-        cerr << "car is applicable only on conslists" << endl;
-        return nullptr;
-    }
-    return args->car()->cdr();
-}
-
-sexpr_t builtin::_setcar(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (not args->car()->issymb() or args->length() != 2) {
-        cerr << "Err: cannot set constant!" << endl;
-        return nullptr;
-    }
-    auto itr = bindings.find(any_cast<sexpr_text>(*args->car()->blob).text());
-    if (itr == end(bindings)) {
-        cerr << "Err: symbole is not defined" << endl;
-        return nullptr;
-    } else if (not itr->second->iscons()) {
-        cerr << "Err: Symbol is not bound to a conslist" << endl;
-        return nullptr;
-    }
-    itr->second->setcar(::eval(args->cdr()->car(), bindings));
-    return symb("t");
-}
-
-sexpr_t builtin::_setcdr(const sexpr_t& args, env_t& bindings) {
-    if (not args->car()->issymb() or args->length() != 2) {
-        cerr << "Err: cannot set constant!" << endl;
-        return nullptr;
-    }
-    auto itr = bindings.find(any_cast<sexpr_text>(*args->car()->blob).text());
-    if (itr == end(bindings)) {
-        cerr << "Err: symbole is not defined" << endl;
-        return nullptr;
-    } else if (not itr->second->iscons()) {
-        cerr << "Err: Symbol is not bound to a conslist" << endl;
-        return nullptr;
-    }
-    itr->second->setcdr(::eval(args->cdr()->car(), bindings));
-    return symb("t");
+    bindings[sy] = ::eval(is_lambda ? lambda(args->car()->cdr(),
+                                             args->cdr()->car()) :
+                          args->cdr()->car(), bindings);
+    return def->car();
 }
 
 sexpr_t builtin::_quote(const sexpr_t& args, env_t& bindings) {
@@ -179,14 +50,15 @@ sexpr_t builtin::_quote(const sexpr_t& args, env_t& bindings) {
 
 sexpr_t builtin::_unquote(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 1 ) {
-        cerr << "quasiquote expects only one argument" << endl;
+        cerr << "unquote expects only one argument" << endl;
         return nullptr;
     }
+    cout << "aegrs: " << args << endl;
     return ::eval(args->car(), bindings);
 }
 
 sexpr_t builtin::_quasiquote(const sexpr_t& args, env_t& bindings) {
-    if (args->length() != 1 ) {
+    if (args->length() != 1) {
         cerr << "quasiquote expects only one argument" << endl;
         return nullptr;
     }
@@ -228,138 +100,6 @@ sexpr_t builtin::_print(const sexpr_t& args, env_t& bindings) {
     return nil();
 }
 
-sexpr_t builtin::_ispair(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->ispair() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_islist(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->islist() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_isnum(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->isnum() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_isnil(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->isnil() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_isstr(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->isstr() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_issymb(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->issymb() ? symb("t") : nil();
-}
-
-sexpr_t builtin::_islambda(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    if (args->length() != 1) {
-        cerr << "Err: expect one argument" << endl;
-        return nullptr;
-    }
-    return args->car()->islambda() ? symb("t") : nil();
-}
-
-#define cmp_helper(u, v, cmp) (any_cast<sexpr_number>(*u->blob).n \
-                               cmp any_cast<sexpr_number>(*v->blob).n)
-
-bool valid_numeric_args(sexpr_t args) {
-    if (args->length() != 2) {
-        cerr << "Err: expected two arguments!" << endl;
-        return false;
-    }
-    if (not (args->car()->isnum() and args->cdr()->car()->isnum())) {
-        cerr << "Err: arguments should both be numbers!" << endl;
-        return false;
-    }
-    return true;
-}
-
-sexpr_t builtin::_n_eq(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, !=) ? symb("t") : nil();
-}
-
-sexpr_t builtin::_eq(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, ==) ? symb("t") : nil();
-}
-
-sexpr_t builtin::_gt(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, >) ? symb("t") : nil();
-}
-
-sexpr_t builtin::_gt_eq(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, >=) ? symb("t") : nil();
-}
-
-sexpr_t builtin::_lt(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, <) ? symb("t") : nil();
-}
-
-sexpr_t builtin::_lt_eq(const sexpr_t& args, env_t& bindings) {
-    (void)bindings;
-    sexpr_t u, v;
-    if (not valid_numeric_args(args))
-        return nullptr;
-    u = args->car(), v = args->cdr()->car();
-    return cmp_helper(u, v, <=) ? symb("t") : nil();
-}
-
 sexpr_t builtin::_and(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     sexpr_t walk = args;
@@ -393,28 +133,6 @@ sexpr_t builtin::_not(const sexpr_t& args, env_t& bindings) {
     return args->car()->isnil() ? symb("t") : nil();
 }
 
-sexpr_t builtin::_define(const sexpr_t& args, env_t& bindings) {
-    if (args->length() != 2) {
-        cerr << "Err: define expects two arguments" << endl;
-        return nullptr;
-    }
-    bool is_lambda = args->car()->islist();
-    sexpr_t def = is_lambda ? args->car() : args;
-    if (not def->car()->issymb()) {
-        cerr << "Err: define is mal-formatted" << endl;
-        return nullptr;
-    }
-    auto sy = any_cast<sexpr_text>(*def->car()->blob).text();
-    if (bindings.find(sy) != end(bindings)) {
-        cerr << "Err: symbol is already defined, use set! instead" << endl;
-        return nil();
-    }
-    bindings[sy] = ::eval(is_lambda ? lambda(args->car()->cdr(),
-                                             args->cdr()->car()) :
-                          args->cdr()->car(), bindings);
-    return symb("t");
-}
-
 sexpr_t builtin::_set(const sexpr_t& args, env_t& bindings) {
     if (args->length() != 2) {
         cerr << "Err: expecting two arguments!" << endl;
@@ -430,7 +148,7 @@ sexpr_t builtin::_set(const sexpr_t& args, env_t& bindings) {
         return nil();
     }
     itr->second = ::eval(args->cdr()->car(), bindings);
-    return symb("t");
+    return itr->second;
 }
 
 sexpr_t builtin::_unset(const sexpr_t& args, env_t& bindings) {
@@ -459,7 +177,6 @@ sexpr_t builtin::_eval(const sexpr_t& args, env_t& bindings) {
     return ::eval(args->car(), bindings);
 }
 
-// FIXME: list should be part of stdlib instead of builtin ////////////////////
 sexpr_t builtin::_list(const sexpr_t& args, env_t& bindings) {
     (void)bindings;
     return args;
@@ -524,7 +241,7 @@ sexpr_t builtin::_let(const sexpr_t& args, env_t& bindings) {
         curr;
     sexpr_t let_args, let_args_tail;
 
-    if (not walk->islist()) {
+    if (not (walk->islist() or walk->isnil())) {
         cerr << "Err: let is mal formatted" << endl;
         return nullptr;
     }

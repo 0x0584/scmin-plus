@@ -1,12 +1,12 @@
 // ************************************************************************** //
 //                                                                            //
 //                                                        :::      ::::::::   //
-//   env.cpp                                            :+:      :+:    :+:   //
+//   eval.cpp                                           :+:      :+:    :+:   //
 //                                                    +:+ +:+         +:+     //
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:04:59 by archid-           #+#    #+#             //
-//   Updated: 2020/04/23 09:08:05 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 20:52:20 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -38,21 +38,21 @@ void sexpr::init_global() {
     sexpr::global["gt?"]        = native(builtin::_gt);
     sexpr::global[">"]          = native(builtin::_gt);
     sexpr::global["ge?"]        = native(builtin::_gt_eq);
-    sexpr::global["> ="]         = native(builtin::_gt_eq);
+    sexpr::global[">="]         = native(builtin::_gt_eq);
     sexpr::global["lt?"]        = native(builtin::_lt);
     sexpr::global["<"]          = native(builtin::_lt);
     sexpr::global["le?"]        = native(builtin::_lt_eq);
-    sexpr::global["< ="]         = native(builtin::_lt_eq);
+    sexpr::global["<="]         = native(builtin::_lt_eq);
     sexpr::global["eq?"]        = native(builtin::_eq);
-    sexpr::global[" ="]          = native(builtin::_eq);
+    sexpr::global["="]          = native(builtin::_eq);
     sexpr::global["ne?"]        = native(builtin::_n_eq);
-    sexpr::global["! ="]         = native(builtin::_n_eq);
+    sexpr::global["!="]         = native(builtin::_n_eq);
 
     sexpr::global["cons"]       = native(builtin::_cons);
     sexpr::global["cdr"]        = native(builtin::_cdr);
     sexpr::global["car"]        = native(builtin::_car);
-    sexpr::global["set-cdr!"]   = native(builtin::_setcdr);
-    sexpr::global["set-car!"]   = native(builtin::_setcar);
+    sexpr::global["set-cdr!"]   = native(builtin::_cons_cdr_flavor);
+    sexpr::global["set-car!"]   = native(builtin::_cons_car_flavor);
 
     sexpr::global["quote"]      = native(builtin::_quote);
     sexpr::global["quasiquote"] = native(builtin::_quasiquote);
@@ -80,5 +80,36 @@ void sexpr::init_global() {
     sexpr::global["letrec"]     = native(builtin::_let_rec);
     sexpr::global["list"]       = native(builtin::_list);
     sexpr::global["begin"]      = native(builtin::_begin);
+}
 
+sexpr_t eval_args(const sexpr_t& args, env_t& parent) {
+    sexpr_t walk, tail, evaled;
+
+    if (args->isnil())
+        return args;
+    walk = args;
+    while (not walk->isnil()) {
+        if (not cons_append(eval(walk->car(), parent), evaled, tail))
+            return nullptr;
+        walk = walk->cdr();
+    }
+    return evaled;
+}
+
+sexpr_t eval(const sexpr_t& expr, env_t& parent) {
+    sexpr_t op, args, res;
+
+    if (not (expr and expr->islist()))
+        return sexpr::resolve(expr, parent);
+    op = eval(expr->car(), parent);
+    if (not op or not op->islambda()) {
+        cerr << "Err: operator " << op << " is not a lambda" << endl;
+        return nullptr;
+    }
+    auto lamb = any_cast<sexpr::sexpr_lambda>(*op->blob);
+    if (not lamb.require_evaled_args()) args = expr->cdr();
+    else args = eval_args(expr->cdr(), parent);
+    if (not args) return nullptr;
+    res = lamb.eval(args, parent);
+    return res;
 }

@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/13 03:01:20 by archid-           #+#    #+#             //
-//   Updated: 2020/04/23 07:08:55 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 18:11:45 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -14,6 +14,7 @@
 
 bool token::next_paren(string& e) {
     char c = e[0];
+
     if (c != '(' and c != ')')
         return false;
     e.erase(0, 1);
@@ -67,13 +68,36 @@ bool token::next_special(string& e) {
     return false;
 }
 
-bool token::next_text(string& e) {
-    string delim = "() \"";
+static bool has_suffix(const string& s, const string& t) {
+    return equal(rbegin(s), rbegin(s) + t.length(),
+                 rbegin(t), rend(t));
+}
+
+static bool is_cons_flavor(const string& s, token *tok) {
+    const string t = "r!";
+    size_t front, rear;
+
+    if ((s.rfind("set-c", 0) == 0 and has_suffix(s, t)))
+        front = 5, rear = s.length() - 2, tok->isset = true;
+    else if (s.front() == 'c' and s.back() == 'r')
+        front = 1, rear = s.length() - 1, tok->isset = false;
+    else
+        return false;
+    for (auto i = front; i < rear; i++)
+        if (s[i] == 'a' or s[i] == 'd') tok->cons_s.push(s[i]);
+        else return false;
+    tok->type = token::tok_cons_flavor;
+    return true;
+}
+
+bool token::next_symbol(string& e) {
+    const string delim = "() \"";
     int j = 0;
 
     for (; e[j] and delim.find(e[j]) == string::npos; j++)
         s += e[j];
-    type = (s == "lambda" ? tok_lambda : tok_num_or_symb);
+    if (not is_cons_flavor(s, this))
+        type = (s == "lambda" ? tok_lambda : tok_num_or_symb);
     e.erase(0, j);
     return true;
 }
@@ -84,7 +108,7 @@ bool token::next_token(string& e, token& tok) {
     if (e.empty() or e[0] == ';')
         return false;
     return tok.next_paren(e) or tok.next_string(e)
-        or tok.next_special(e) or tok.next_text(e);
+        or tok.next_special(e) or tok.next_symbol(e);
 }
 
 queue<token> token::tokenize(string& s) {

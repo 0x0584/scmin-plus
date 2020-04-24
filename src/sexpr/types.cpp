@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/18 22:09:16 by archid-           #+#    #+#             //
-//   Updated: 2020/04/23 09:05:16 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 19:37:26 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -28,7 +28,6 @@ bool sexpr::sexpr_conslist::islist() {
 bool sexpr::sexpr_conslist::ispair() {
     return not islist();
 }
-
 
 bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
     auto u = this->args, v = args;
@@ -55,12 +54,11 @@ bool sexpr::sexpr_lambda::bindargs(const sexpr_t& args, env_t& parent) {
 bool sexpr::sexpr_lambda::require_evaled_args() {
     return not (native == builtin::_quote
                 or native == builtin::_quasiquote
-                // or native == builtin::_eval
                 or native == builtin::_define
                 or native == builtin::_set
                 or native == builtin::_unset
-                or native == builtin::_setcar
-                or native == builtin::_setcdr
+                or native == builtin::_cons_car_flavor
+                or native == builtin::_cons_cdr_flavor
                 or native == builtin::_if
                 or native == builtin::_cond
                 or native == builtin::_let

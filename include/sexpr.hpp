@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/09 23:49:09 by archid-           #+#    #+#             //
-//   Updated: 2020/04/21 14:17:55 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 19:25:13 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -42,6 +42,8 @@ sexpr_t eval(const sexpr_t& expr, env_t& parent);
 sexpr_t eval_args(const sexpr_t& args, env_t& parent);
 // sexpr_t list(const sexpr_t& car...);
 
+bool cons_append(const sexpr_t& e, sexpr_t& expr, sexpr_t& tail);
+
 // FIXME: use polymorphism instead of those structs! //////////////////////////
 struct sexpr
 {
@@ -69,13 +71,15 @@ struct sexpr
         bool ispair(), islist();
 
         friend ostream& operator<<(ostream& os, sexpr_conslist *c) {
-            if (c->ispair()) {
-                os << "(" << c->car << " . " << c->cdr << ")";
-                return os;
-            }
             os << "(" << c->car;
-            for (auto e = c->cdr; not e->isnil(); e = e->cdr())
-                os << " " << e->car();
+            for (auto e = c->cdr; not e->isnil(); e = e->cdr()) {
+                if (not e->isatom())
+                    os << " " << e->car();
+                else {
+                     os << " . " << e;
+                     break;
+                }
+            }
             os << ")";
             return os;
         }
@@ -142,8 +146,6 @@ struct sexpr
 
     sexpr_t car(), cdr();
     bool setcar(const sexpr_t& e), setcdr(const sexpr_t& e);
-
-    sexpr_t eval(const sexpr_t& args, env_t& bindings);
 
     static void init_global();
     static sexpr_t resolve(const sexpr_t& expr, env_t& local);
