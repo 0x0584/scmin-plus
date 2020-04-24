@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/24 18:43:49 by archid-           #+#    #+#             //
-//   Updated: 2020/04/24 21:33:54 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 23:29:57 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -73,14 +73,17 @@ static sexpr_t _cons_flavor(bool cdr, const sexpr_t& args, env_t& bindings) {
         cerr << "Err: operator expect two arguments" << endl;
         return nullptr;
     }
-    if (e = ::eval(args->car(), bindings); not e->iscons()) {
+    if (e = ::eval(args->car(), bindings); not (e and e->iscons())) {
         cerr << "Err: cannot set constant!" << endl;
         return nil();
     }
     set = ::eval(args->cdr()->car(), bindings);
     if (cdr) e->setcdr(set);
     else e->setcar(set);
-    return sexpr::resolve(args->car()->cdr()->car(), bindings);
+    sexpr_t walk = args->car();
+    while (not walk->issymb())
+        walk = walk->cdr()->car();
+    return ::eval(walk, bindings);
 }
 
 sexpr_t builtin::_cons_car_flavor(const sexpr_t& args, env_t& bindings) {

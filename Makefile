@@ -6,7 +6,7 @@
 #    By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/04/09 23:37:54 by archid-           #+#    #+#              #
-#    Updated: 2020/04/24 19:31:41 by archid-          ###   ########.fr        #
+#    Updated: 2020/04/24 22:52:19 by archid-          ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -59,6 +59,9 @@ check: all
 	cat -n scheme/cond.scm
 	@echo
 	./$(NAME) < scheme/cond.scm
+	cat -n scheme/bindings.scm
+	@echo
+	./$(NAME) < scheme/bindings.scm
 
 distcheck:
 	@uname -a

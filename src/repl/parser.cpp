@@ -6,7 +6,7 @@
 //   By: archid- <archid-@student.1337.ma>          +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2020/04/12 02:28:48 by archid-           #+#    #+#             //
-//   Updated: 2020/04/24 21:29:32 by archid-          ###   ########.fr       //
+//   Updated: 2020/04/24 22:43:35 by archid-          ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -180,7 +180,7 @@ sexpr_t parse(string s) {
     if ((tokens = token::tokenize(s)).size() == 0)
         return nullptr;
     e = parse_tokens(tokens);
-    cout << "expr: " << e << endl;
+    // cout << "expr: " << e << endl;
     if (not e)
         cerr << "Err: expression is mal-formed" << endl;
     return e;
